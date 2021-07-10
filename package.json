@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Docker functions",
   "main": "src/df-list.js",
   "scripts": {
@@ -9,7 +9,8 @@
   "author": "Antonio Jimenez",
   "license": "UNLICENSED",
   "bin": {
-    "df-list": "./src/df-list.js"
+    "df-list": "./src/df-list.js",
+    "df-stop": "./src/df-stop.js"
   },
   "dependencies": {
     "commander": "^6.2.0"

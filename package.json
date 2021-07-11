@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Docker functions",
   "main": "src/commands/df-list.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "df-stop": "./src/commands/df-stop.js"
   },
   "dependencies": {
-    "commander": "^6.2.0"
+    "commander": "^6.2.0",
+    "tty-table": "^4.1.3"
   }
 }

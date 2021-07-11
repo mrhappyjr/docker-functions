@@ -18,10 +18,19 @@ module.exports = {
     return resultArray;
   },
 
-  insertNumbers: function (array, columnIndex) {
+  insertNumbersArray: function (array, columnIndex) {
     var number = 1;
     var resultArray = array.map(function(element) {
       element.splice(columnIndex, 0, number++);
+      return element;
+    });
+    return resultArray;
+  },
+
+  insertNumbersObject: function (array, columnName) {
+    var number = 1;
+    var resultArray = array.map(function(element) {
+      element[columnName] = number++;
       return element;
     });
     return resultArray;

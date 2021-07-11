@@ -31,6 +31,9 @@ function containersTable() {
             newElement.Status = "Exited (" + element.State.ExitCode + ") " + utilsDate.dateAgo(element.State.FinishedAt) + ' ago';
         } else {
             newElement.Status = "Up " + utilsDate.dateAgo(element.State.StartedAt);
+            if (element.State.Health && element.State.Health.Status) {
+                newElement.Status = newElement.Status + " (" + element.State.Health.Status + ") ";
+            }
         }
         newElement.ImageSource = element.Config.Image;
         newElement.DockerizeService = utilsString.replaceAll(element.Config.Labels['com.docker.compose.project.working_dir'], '\\', '/') 
@@ -63,7 +66,7 @@ function containersTable() {
         },
         {
             value: "Status",
-            alias: "Status (ExitCode)",
+            alias: "Status (ExitCode/Health)",
             formatter: function (value) {
                 if (value.startsWith("Up ")) {
                     return this.style(value, "bgGreen", "black")

@@ -2,10 +2,14 @@
 const child_process = require('child_process');
 const utilsString = require('../utils/utilsString');
 const utilsArray = require('../utils/utilsArray');
+const utilsNumber = require('../utils/utilsNumber');
 const utilsDate = require('../utils/utilsDate');
+const utilsLog = require('../utils/utilsLog');
 const table = require('tty-table');
 
 module.exports = (p, o) => {
+
+    utilsLog.logHeader("DOCKER FUNCTION: LIST", true, true, 100);
 
     const mensage = o.all ? "LISTADO all" : "LISTADO normal";
 
@@ -42,18 +46,20 @@ function containersTable() {
         return newElement;
     });
 
+    utilsArray.orderByColumn(containerData, "ContainerName");
+
     const header = [
         {
             value: "ContainerName",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "ContainerId",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "Created",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "Status",
@@ -68,19 +74,19 @@ function containersTable() {
         },
         {
             value: "ImageSource",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "DockerizeService",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "MySQLversion",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         },
         {
             value: "MySQLpass",
-            formatter: dbCellColor
+            formatter: dbContainerCellColor
         }
     ];
 
@@ -96,11 +102,60 @@ function containersTable() {
 function imagesTable() {
     var imageData = getData('docker image ls -aq');
 
+    imageData = imageData.map(element => {
+        const newElement = {};
+        newElement.ImageName = element.RepoTags;
+        newElement.ImageId = element.Id.substring(7, 19);
+        newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
+        newElement.ImageParent = element.Parent.substring(7, 19);
+        if (element.Config && element.Config.Env) {
+            newElement.MySQLversion = utilsArray.value(element.Config.Env, "MYSQL_VERSION=");
+            newElement.MySQLpass = utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=");
+        }
+        newElement.Size = utilsNumber.size(element.Size);
+
+        return newElement;
+    });
+
+    utilsArray.orderByColumn(imageData, "ImageName");
+
+    const header = [
+        {
+            value: "ImageName",
+            formatter: dbImageCellColor
+        },
+        {
+            value: "ImageId",
+            formatter: dbImageCellColor
+        },
+        {
+            value: "Created",
+            formatter: dbImageCellColor
+        },
+        {
+            value: "ImageParent"
+        },
+        {
+            value: "MySQLversion",
+            formatter: dbImageCellColor
+        },
+        {
+            value: "MySQLpass",
+            formatter: dbImageCellColor
+        },
+        {
+            value: "Size",
+            formatter: dbImageCellColor
+        }
+    ];
+
     const options = {
         headerColor: "cyan",
         align: "left",
         width: "100%"
     };
+
+    console.log(table(header, imageData, options).render());
 }
 
 function getData(command) {
@@ -110,10 +165,20 @@ function getData(command) {
     return JSON.parse(child_process.execSync(`docker inspect ${ids}`, {maxBuffer: 10485760}).toString());
 }
 
-function dbCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
+function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
     const row = inputData[rowIndex] // get the whole row
     
     if (row.DockerizeService.endsWith(' => gr-db')) {
+        return this.style(cellValue, "green");
+    } else {
+        return this.style(cellValue);
+    }
+}
+
+function dbImageCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
+    const row = inputData[rowIndex] // get the whole row
+    
+    if (row.MySQLversion && row.MySQLversion != "") {
         return this.style(cellValue, "green");
     } else {
         return this.style(cellValue);

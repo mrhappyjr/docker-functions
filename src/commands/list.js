@@ -153,7 +153,7 @@ function imagesTable() {
     ];
 
     const options = {
-        headerColor: "cyan",
+        headerColor: "cyanBright",
         align: "left",
         width: "100%"
     };

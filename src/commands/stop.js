@@ -24,7 +24,7 @@ module.exports = (p, o) => {
         output: process.stdout
     });
 
-    rl.question('Which containers do you want to stop? ', (answer) => {
+    rl.question('Which containers do you want to stop (enter the numbers # separated by \",\" or \"-\" for range)? ', (answer) => {
 
         var numbersToStop = utilsNumber.separateNumbers(answer);
 

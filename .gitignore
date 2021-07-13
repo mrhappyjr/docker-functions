@@ -1,2 +1,3 @@
 node_modules
 docker-functions_WorkSpace.code-workspace
+.vscode/launch.json

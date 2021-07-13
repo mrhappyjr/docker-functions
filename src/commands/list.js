@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const listFunc = require('./listFunc');
+const listFunc = require('../functions/listFunc');
 const utilsLog = require('../utils/utilsLog');
 
 module.exports = (p, o) => {

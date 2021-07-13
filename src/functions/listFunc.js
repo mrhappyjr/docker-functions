@@ -1,44 +1,48 @@
 #! /usr/bin/env node
-const child_process = require('child_process');
+require('colors');
+const execSync = require('child_process').execSync;
 const utilsString = require('../utils/utilsString');
 const utilsArray = require('../utils/utilsArray');
 const utilsNumber = require('../utils/utilsNumber');
 const utilsDate = require('../utils/utilsDate');
+const inspectFunc = require('./inspectFunc');
 const table = require('tty-table');
 
 module.exports = {
 
-    containersTableData: function () {
-        var containerData = getData('docker ps -aq');
+    containersTableData: function (hasColumnNumer) {
+        var containerData = inspectFunc.getContainersData(getIds('docker ps -aq'));
 
         containerData = containerData.map(element => {
             const newElement = {};
-            newElement.ContainerName = element.Name.substring(1);
-            newElement.ContainerId = element.Config.Hostname;
+            newElement.ContainerName = element.ContainerName.substring(1);
+            newElement.ContainerId = element.ContainerId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
-            if (element.State.Status == "exited") {
-                newElement.Status = "Exited (" + element.State.ExitCode + ") " + utilsDate.dateAgo(element.State.FinishedAt) + ' ago';
+            if (element.Status == "exited") {
+                newElement.Status = "Exited (" + element.ExitCode + ") " + utilsDate.dateAgo(element.FinishedAt) + ' ago';
             } else {
-                newElement.Status = "Up " + utilsDate.dateAgo(element.State.StartedAt);
-                if (element.State.Health && element.State.Health.Status) {
-                    newElement.Status = newElement.Status + " (" + element.State.Health.Status + ") ";
+                newElement.Status = "Up " + utilsDate.dateAgo(element.StartedAt);
+                if (element.Health) {
+                    newElement.Status = newElement.Status + " (" + element.Health + ") ";
                 }
             }
-            newElement.ImageSource = element.Config.Image;
-            newElement.DockerizeService = utilsString.replaceAll(element.Config.Labels['com.docker.compose.project.working_dir'], '\\', '/') 
+            newElement.ImageSource = element.ImageSource;
+            newElement.DockerizeService = element.DockerizeWorkingDir 
                 // + '/' 
-                // + element.Config.Labels['com.docker.compose.project.config_files'] 
+                // + element.DockerizeConfigFile
                 + ' => ' 
-                + element.Config.Labels['com.docker.compose.service'];
-            if (element.Config.Env) {
-                newElement.MySQLversion = utilsArray.value(element.Config.Env, "MYSQL_VERSION=");
-                newElement.MySQLpass = utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=");
-            }
+                + element.DockerizeService;
+            newElement.MySQLversion = element.MySQLversion;
+            newElement.MySQLpass = element.MySQLpass;
 
             return newElement;
         });
 
         utilsArray.orderByColumn(containerData, "ContainerName");
+
+        if (hasColumnNumer) {
+            utilsArray.insertNumbersObject(containerData, "#");
+        }
 
         return containerData;
     },
@@ -53,7 +57,7 @@ module.exports = {
         }
     },
 
-    containersTableHeader: function () {
+    containersTableHeader: function (hasColumnNumer) {
         const header = [
             {
                 value: "ContainerName",
@@ -95,6 +99,14 @@ module.exports = {
                 formatter: this.dbContainerCellColor
             }
         ];
+
+        if (hasColumnNumer) {
+            var columnNumbers =  {
+                value: "#",
+                formatter: this.dbContainerCellColor
+            };
+            header.unshift(columnNumbers);
+        }
 
         return header;
     },
@@ -170,15 +182,47 @@ module.exports = {
         };
 
         console.log(table(header, imageData, options).render());
+    },
+
+    createCommandParam: function (txt, tableData) {
+        var numbersToStop = utilsNumber.separateNumbers(txt);
+        numbersToStop = numbersToStop.map(element => {
+            var foundElement = tableData.find(obj => {
+                return obj["#"] == element;
+            });
+            if (foundElement) {
+                return foundElement.ContainerId;
+            }
+        });
+    
+        numbersToStop = numbersToStop.join(" ");
+    
+        if (utilsString.replaceAll(numbersToStop, " ", "") == "") {
+            throw `ERROR: No elements found with \'${txt}\' response`.red;
+        }
+    
+        return numbersToStop;
     }
 
 }
 
 function getData(command) {
-    var ids = child_process.execSync(command).toString();
+    var ids = execSync(command).toString();
     ids = utilsString.replaceEOL(ids, " ");
 
-    return JSON.parse(child_process.execSync(`docker inspect ${ids}`, {maxBuffer: 10485760}).toString());
+    return JSON.parse(execSync(`docker inspect ${ids}`, {maxBuffer: 10485760}).toString());
+}
+
+/**
+ * From a command, the function returns a list of ids separated by " "
+ * 
+ * @param {String} command command to get a list of ids
+ * 
+ * @return {String} list of ids separated by " "
+ */
+function getIds(command) {
+    var ids = execSync(command).toString();
+    return utilsString.replaceEOL(ids, " ");
 }
 
 function dbImageCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "description": "Docker functions",
   "main": "src/commands/df-list.js",
   "scripts": {
@@ -10,9 +10,11 @@
   "license": "UNLICENSED",
   "bin": {
     "df-list": "./src/commands/df-list.js",
-    "df-stop": "./src/commands/df-stop.js"
+    "df-stop": "./src/commands/df-stop.js",
+    "df-commit": "./src/commands/df-commit.js"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "commander": "^6.2.0",
     "tty-table": "^4.1.3"
   }

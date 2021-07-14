@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Docker functions",
   "main": "src/commands/df-list.js",
   "scripts": {

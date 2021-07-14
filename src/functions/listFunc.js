@@ -10,7 +10,7 @@ const table = require('tty-table');
 
 module.exports = {
 
-    containersTableData: function (hasColumnNumer) {
+    containersTableData: function (hasColumnNumber) {
         var containerData = inspectFunc.getContainersData(getIds('docker ps -aq'));
 
         containerData = containerData.map(element => {
@@ -40,36 +40,26 @@ module.exports = {
 
         utilsArray.orderByColumn(containerData, "ContainerName");
 
-        if (hasColumnNumer) {
+        if (hasColumnNumber) {
             utilsArray.insertNumbersObject(containerData, "#");
         }
 
         return containerData;
     },
 
-    dbContainerCellColor: function (cellValue, columnIndex, rowIndex, rowData, inputData) {
-        const row = inputData[rowIndex] // get the whole row
-        
-        if (row.DockerizeService.endsWith(' => gr-db')) {
-            return this.style(cellValue, "green");
-        } else {
-            return this.style(cellValue);
-        }
-    },
-
-    containersTableHeader: function (hasColumnNumer) {
+    containersTableHeader: function (hasColumnNumber) {
         const header = [
             {
                 value: "ContainerName",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "ContainerId",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "Created",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "Status",
@@ -84,26 +74,26 @@ module.exports = {
             },
             {
                 value: "ImageSource",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "DockerizeService",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "MySQLversion",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "MySQLpass",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             }
         ];
 
-        if (hasColumnNumer) {
+        if (hasColumnNumber) {
             var columnNumbers =  {
                 value: "#",
-                formatter: this.dbContainerCellColor
+                formatter: dbContainerCellColor
             };
             header.unshift(columnNumbers);
         }
@@ -111,33 +101,18 @@ module.exports = {
         return header;
     },
 
-    containersTableOptions: function () {
-        const options = {
-            headerColor: "cyanBright",
-            align: "left",
-            width: "100%"
-        };
-
-        return options;
-    },
-
-    containersTableRender: function (data, header, options) {
-        console.log(table(header, data, options).render());
-    },
-
-    imagesTable: function () {
-        var imageData = getData('docker image ls -aq');
+    imagesTableData: function (hasColumnNumber) {
+        //var imageData = getData('docker image ls -aq');
+        var imageData = inspectFunc.getImagesData(getIds('docker image ls -aq'));
 
         imageData = imageData.map(element => {
             const newElement = {};
-            newElement.ImageName = element.RepoTags;
-            newElement.ImageId = element.Id.substring(7, 19);
+            newElement.ImageName = element.ImageName;
+            newElement.ImageId = element.ImageId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
-            newElement.ImageParent = element.Parent.substring(7, 19);
-            if (element.Config && element.Config.Env) {
-                newElement.MySQLversion = utilsArray.value(element.Config.Env, "MYSQL_VERSION=");
-                newElement.MySQLpass = utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=");
-            }
+            newElement.ImageParent = element.ImageParent;
+            newElement.MySQLversion = element.MySQLversion;
+            newElement.MySQLpass = element.MySQLpass
             newElement.Size = utilsNumber.size(element.Size);
 
             return newElement;
@@ -145,6 +120,14 @@ module.exports = {
 
         utilsArray.orderByColumn(imageData, "ImageName");
 
+        if (hasColumnNumber) {
+            utilsArray.insertNumbersObject(imageData, "#");
+        }
+
+        return imageData;
+    },
+
+    imagesTableHeader: function (hasColumnNumber) {
         const header = [
             {
                 value: "ImageName",
@@ -159,7 +142,8 @@ module.exports = {
                 formatter: dbImageCellColor
             },
             {
-                value: "ImageParent"
+                value: "ImageParent",
+                formatter: dbImageCellColor
             },
             {
                 value: "MySQLversion",
@@ -175,54 +159,84 @@ module.exports = {
             }
         ];
 
+        if (hasColumnNumber) {
+            var columnNumbers =  {
+                value: "#",
+                formatter: dbImageCellColor
+            };
+            header.unshift(columnNumbers);
+        }
+
+        return header;
+    },
+
+    tableOptions: function () {
         const options = {
             headerColor: "cyanBright",
             align: "left",
             width: "100%"
         };
 
-        console.log(table(header, imageData, options).render());
+        return options;
     },
 
-    createCommandParam: function (txt, tableData) {
-        var numbersToStop = utilsNumber.separateNumbers(txt);
-        numbersToStop = numbersToStop.map(element => {
+    tableRender: function (data, header, options) {
+        console.log(table(header, data, options).render());
+    },
+
+    containersTableRender: function (hasColumnNumber) {
+        var tableData = this.containersTableData(hasColumnNumber);
+        this.tableRender(tableData, this.containersTableHeader(hasColumnNumber), this.tableOptions());
+        return tableData;
+    },
+
+    imagesTableRender: function (hasColumnNumber) {
+        var tableData = this.imagesTableData(hasColumnNumber);
+        this.tableRender(tableData, this.imagesTableHeader(hasColumnNumber), this.tableOptions());
+        return tableData;
+    },
+
+    findNumsInTable: function (txt, tableData, columnReturn) {
+        var separateNumbers = utilsNumber.separateNumbers(txt);
+        var elements = separateNumbers.reduce((result, element) => {
             var foundElement = tableData.find(obj => {
                 return obj["#"] == element;
             });
             if (foundElement) {
-                return foundElement.ContainerId;
+                result.push(foundElement[columnReturn]);
             }
-        });
+            return result;
+        }, []);
     
-        numbersToStop = numbersToStop.join(" ");
-    
-        if (utilsString.replaceAll(numbersToStop, " ", "") == "") {
+        if (elements.length == 0) {
             throw `ERROR: No elements found with \'${txt}\' response`.red;
         }
     
-        return numbersToStop;
+        return elements;
     }
 
 }
 
-function getData(command) {
-    var ids = execSync(command).toString();
-    ids = utilsString.replaceEOL(ids, " ");
-
-    return JSON.parse(execSync(`docker inspect ${ids}`, {maxBuffer: 10485760}).toString());
-}
-
 /**
- * From a command, the function returns a list of ids separated by " "
+ * From a command, the function returns a array of ids
  * 
  * @param {String} command command to get a list of ids
  * 
- * @return {String} list of ids separated by " "
+ * @return {Array} of ids
  */
 function getIds(command) {
     var ids = execSync(command).toString();
-    return utilsString.replaceEOL(ids, " ");
+    return utilsString.toArray(ids, '\n');
+}
+
+function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
+    const row = inputData[rowIndex] // get the whole row
+    
+    if (row.DockerizeService.endsWith(' => gr-db')) {
+        return this.style(cellValue, "green");
+    } else {
+        return this.style(cellValue);
+    }
 }
 
 function dbImageCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

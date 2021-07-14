@@ -1,8 +1,9 @@
 #! /usr/bin/env node
-const execSync = require('child_process').execSync;
+require('colors');
 const utilsQuestion = require('../utils/utilsQuestion');
 const utilsLog = require('../utils/utilsLog');
 const listFunc = require('../functions/listFunc');
+const stopFunc = require('../functions/stopFunc');
 
 module.exports = async (p, o) => {
 
@@ -13,19 +14,17 @@ module.exports = async (p, o) => {
 
     console.log('Loading containers ...');
 
-    var containerData = listFunc.containersTableData(true);
-
-    listFunc.containersTableRender(containerData, listFunc.containersTableHeader(true), listFunc.containersTableOptions());
+    var containerData = listFunc.containersTableRender(true);
 
     var answer = await utilsQuestion.questionExample(
         'Which containers do you want to stop (enter the numbers # separated by \",\" or \"-\" for range)? ');
     
     try {
-        var numbersToStop = listFunc.createCommandParam(answer, containerData);
-        console.log(`Containers to stop: ${numbersToStop}`);
-        var stop = execSync(`docker stop ${numbersToStop}`).toString();
-        console.log(stop);
+        var containersToStop = listFunc.findNumsInTable(answer, containerData, "ContainerName");
+        console.log(`Containers to stop: ${containersToStop.join(" ")}`);
+        console.log("");
+        containersToStop.forEach(container => stopFunc.stopContainer(container));
     } catch (exception) {
-        console.log(exception)
+        console.log(exception.toString().red);
     }
 }

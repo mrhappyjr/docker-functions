@@ -11,6 +11,6 @@ module.exports = (p, o) => {
 
     console.log('Loading containers and images ...');
 
-    listFunc.containersTableRender(listFunc.containersTableData(), listFunc.containersTableHeader(), listFunc.containersTableOptions());
-    listFunc.imagesTable();
+    listFunc.containersTableRender();
+    listFunc.imagesTableRender();
 }

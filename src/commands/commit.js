@@ -9,6 +9,8 @@ module.exports = async (p, o) => {
 
     utilsLog.logHeader("DOCKER FUNCTION: COMMIT", true, true, 100);
 
+    listFunc.imagesTableRender();
+
     var containerData = listFunc.containersTableRender(true);
 
     var answer = await utilsQuestion.makeQuestion(

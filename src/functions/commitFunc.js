@@ -35,7 +35,6 @@ module.exports = {
             `Do you want to create image ${imageName.green} from container ${containerAndImage.ContainerName.green} (y/n)? `, "", true);
         
         if (answer == true) {
-            var commit = true;
             // check if container is stopped
             var containerStatus = inspectFunc.getContainerStatus(containerAndImage.ContainerName);
             if (containerStatus != "exited") {
@@ -43,28 +42,22 @@ module.exports = {
                     `Its status is ${containerStatus.toUpperCase().red}. `);
                 console.log(`If an image is created from a not stopped container, the image data may be corrupted.`.red);
                 var stopContainer = await utilsQuestion.makeQuestion(
-                    `Do you want to stop the container ${containerAndImage.ContainerName.green} (y/n)? `, "", true);
+                    `Do you want to stop the container ${containerAndImage.ContainerName.green} (y/n)? `, "yes", true);
                 if (stopContainer == true) {
                     stopFunc.stopContainer(containerAndImage.ContainerName);
-                    commit = false;
                 }
             }
+            console.log(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
+            execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`).toString();
+            console.log("");
 
-            if (commit == true) {
-                console.log(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
-                execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`).toString();
-                console.log("");
-
-                var imageExists = listFunc.imageExists(imageName);
-                if (imageExists == true) {
-                    console.log("PROCESS FINISHED: ".green +
-                        `Image ${imageName.green} created from container ${containerAndImage.ContainerName.green}`);
-                } else {
-                    console.log("PROCESS FINISHED: ".red +
-                        `Image ${imageName.red} NOT created from container ${containerAndImage.ContainerName.red}`);
-                }
+            var imageExists = listFunc.imageExists(imageName);
+            if (imageExists == true) {
+                console.log("PROCESS FINISHED: ".green +
+                    `Image ${imageName.green} created from container ${containerAndImage.ContainerName.green}`);
             } else {
-                console.log(`END. Container ${containerAndImage.ContainerName} has not been committed.`);
+                console.log("PROCESS FINISHED: ".red +
+                    `Image ${imageName.red} NOT created from container ${containerAndImage.ContainerName.red}`);
             }
         } else {
             console.log(`END. Container ${containerAndImage.ContainerName} has not been committed.`);

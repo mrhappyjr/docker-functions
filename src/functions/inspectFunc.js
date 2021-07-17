@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+const customErrors = require('../errors/customErrors');
 const execSync = require('child_process').execSync;
 const utilsString = require('../utils/utilsString');
 const utilsArray = require('../utils/utilsArray');
@@ -17,27 +18,32 @@ module.exports = {
     getContainersData: function (containersId) {
         var containersData = inspect(containersId);
 
-        containersData = containersData.map(element => {
-            const newElement = {};
-            newElement.ContainerName = element.Name;
-            newElement.ContainerId = element.Config.Hostname;
-            newElement.Created = element.Created;
-            newElement.Status = element.State.Status;
-            newElement.ExitCode = element.State.ExitCode;
-            newElement.FinishedAt = element.State.FinishedAt;
-            newElement.StartedAt = element.State.StartedAt;
-            newElement.Health = (element.State.Health && element.State.Health.Status) ? element.State.Health.Status : undefined;
-            newElement.ImageSource = element.Config.Image;
-            newElement.DockerizeWorkingDir = utilsString.replaceAll(element.Config.Labels['com.docker.compose.project.working_dir'], '\\', '/');
-            newElement.DockerizeConfigFile = element.Config.Labels['com.docker.compose.project.config_files'];
-            newElement.DockerizeService = element.Config.Labels['com.docker.compose.service'];
-            newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
-            newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
+        try {
+            containersData = containersData.map(element => {
+                const newElement = {};
+                newElement.ContainerName = element.Name;
+                newElement.ContainerId = element.Config.Hostname;
+                newElement.Created = element.Created;
+                newElement.Status = element.State.Status;
+                newElement.ExitCode = element.State.ExitCode;
+                newElement.FinishedAt = element.State.FinishedAt;
+                newElement.StartedAt = element.State.StartedAt;
+                newElement.Health = (element.State.Health && element.State.Health.Status) ? element.State.Health.Status : undefined;
+                newElement.ImageSource = element.Config.Image;
+                newElement.DockerizeWorkingDir = utilsString.replaceAll(element.Config.Labels['com.docker.compose.project.working_dir'], '\\', '/');
+                newElement.DockerizeConfigFile = element.Config.Labels['com.docker.compose.project.config_files'];
+                newElement.DockerizeService = element.Config.Labels['com.docker.compose.service'];
+                newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
+                newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
 
-            return newElement;
-        });
-        
-        return containersData;
+                return newElement;
+            });
+            
+            return containersData;
+        } catch (exception) {
+            console.log(`${exception}`.red);
+            throw `ERROR getting data from containers ${containersId}`;
+        }
     },
 
     /**
@@ -50,20 +56,25 @@ module.exports = {
     getImagesData: function (imagesId) {
         var imagesData = inspect(imagesId);
 
-        imagesData = imagesData.map(element => {
-            const newElement = {};
-            newElement.ImageName = element.RepoTags;
-            newElement.ImageId = element.Id.substring(7, 19);
-            newElement.Created = element.Created;
-            newElement.ImageParent = element.Parent.substring(7, 19);
-            newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
-            newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
-            newElement.Size = element.Size;
+        try {
+            imagesData = imagesData.map(element => {
+                const newElement = {};
+                newElement.ImageName = element.RepoTags;
+                newElement.ImageId = element.Id.substring(7, 19);
+                newElement.Created = element.Created;
+                newElement.ImageParent = element.Parent.substring(7, 19);
+                newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
+                newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
+                newElement.Size = element.Size;
 
-            return newElement;
-        });
-        
-        return imagesData;
+                return newElement;
+            });
+            
+            return imagesData;
+        } catch (exception) {
+            console.log(`${exception}`.red);
+            throw `ERROR getting data from images ${imagesId}`;
+        }
     },
 
     getContainerStatus: function (containerId) {
@@ -81,8 +92,22 @@ function inspect(ids) {
     } else {
         param = ids;
     }
-    const result = JSON.parse(execSync(`docker inspect ${param}`, {maxBuffer: 10485760}).toString());
-    readline.moveCursor(process.stdout, -15, 0);
-    readline.clearScreenDown(process.stdout);
-    return result;
+    try {
+        const result = JSON.parse(execSync(`docker inspect ${param}`, {stdio: 'pipe', maxBuffer: 10485760}).toString());
+        readline.moveCursor(process.stdout, -15, 0);
+        readline.clearScreenDown(process.stdout);
+        return result;
+    } catch (exception) {
+        readline.moveCursor(process.stdout, -15, 0);
+        readline.clearScreenDown(process.stdout);
+        var stdoutExc = utilsString.replaceEOL(exception.stdout.toString(), "");
+        if (exception.stdout && stdoutExc != '[]') {
+            console.log(`${exception.stderr}`.red);
+            console.log(`${exception.stdout}`.green)
+            return JSON.parse(exception.stdout);
+        } else {
+            //console.log(`${exception}`.red);
+            throw new customErrors.NotFoundError(`${exception}`.red + `\n` + `ERROR inspecting indexes ${ids}`);
+        }
+    }
 }

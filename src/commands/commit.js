@@ -9,14 +9,14 @@ module.exports = async (p, o) => {
 
     utilsLog.logHeader("DOCKER FUNCTION: COMMIT", true, true, 100);
 
-    listFunc.imagesTableRender();
-
-    var containerData = listFunc.containersTableRender(true);
-
-    var answer = await utilsQuestion.makeQuestion(
-        'Which containers do you want to commit (enter the numbers # separated by \",\" or \"-\" for range)? ');
-    
     try {
+        listFunc.imagesTableRender();
+
+        var containerData = listFunc.containersTableRender(true);
+    
+        var answer = await utilsQuestion.makeQuestion(
+            'Which containers do you want to commit (enter the numbers # separated by \",\" or \"-\" for range)? ');
+            
         var toCommit = listFunc.findNumsInTable(answer, containerData, "ContainerName", "ImageSource");
         var containersToCommit = toCommit.map(containerAndImage => containerAndImage.ContainerName);
         console.log(`Containers to commit: ${containersToCommit.join(" ")}`);
@@ -25,7 +25,7 @@ module.exports = async (p, o) => {
             await commitFunc.commitContainer(containerAndImage);
         }
     } catch (exception) {
-        console.log(exception.toString().red);
+        console.log(`${exception}`.red);
     }
 
 }

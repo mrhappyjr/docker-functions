@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 require('colors');
+const customErrors = require('../errors/customErrors');
 const execSync = require('child_process').execSync;
 const utilsString = require('../utils/utilsString');
 const utilsArray = require('../utils/utilsArray');
@@ -230,7 +231,10 @@ module.exports = {
             var imageData = inspectFunc.getImagesData(image);
             return ((image == imageData[0].ImageName) || (image == imageData[0].ImageId) || ((image + ":latest") == imageData[0].ImageName));
         } catch (exception) {
-            return false;
+            if (exception instanceof customErrors.NotFoundError) {
+                return false;
+            }
+            throw exception;
         }
     }
 
@@ -245,11 +249,18 @@ module.exports = {
  */
 function getIds(command) {
     process.stdout.write("Reading ... ");
-    const ids = execSync(command).toString();
-    const result = utilsString.toArray(ids, '\n');
-    readline.moveCursor(process.stdout, -12, 0);
-    readline.clearScreenDown(process.stdout);
-    return result;
+    try {
+        const ids = execSync(command, {stdio: 'pipe'}).toString();
+        const result = utilsString.toArray(ids, '\n');
+        readline.moveCursor(process.stdout, -12, 0);
+        readline.clearScreenDown(process.stdout);
+        return result;
+    } catch (exception) {
+        readline.moveCursor(process.stdout, -12, 0);
+        readline.clearScreenDown(process.stdout);
+        console.log(`${exception}`.red);
+        throw `ERROR reading indexes from command ${command}`;
+    }
 }
 
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

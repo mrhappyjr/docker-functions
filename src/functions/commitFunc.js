@@ -47,9 +47,13 @@ module.exports = {
                     stopFunc.stopContainer(containerAndImage.ContainerName);
                 }
             }
-            console.log(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
-            execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`).toString();
-            console.log("");
+            process.stdout.write(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
+            try {
+                execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`, {stdio: 'pipe'}).toString();
+            } finally {
+                console.log("");
+                console.log("");
+            }
 
             var imageExists = listFunc.imageExists(imageName);
             if (imageExists == true) {

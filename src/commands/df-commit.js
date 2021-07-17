@@ -15,6 +15,7 @@ const app = program
 -----------------------------------------------
 Help:
   Create a local image from a container.
+  If an image of an existing version is committed, the old image is overwritten.
     `);
   });
 

@@ -9,8 +9,6 @@ module.exports = (p, o) => {
     const mensage = o.all ? "LISTADO all" : "LISTADO normal";
     //console.log(mensage);
 
-    console.log('Loading containers and images ...');
-
     listFunc.containersTableRender();
     listFunc.imagesTableRender();
 }

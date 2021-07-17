@@ -3,6 +3,8 @@ const execSync = require('child_process').execSync;
 const utilsString = require('../utils/utilsString');
 const utilsArray = require('../utils/utilsArray');
 
+const readline = require('readline');
+
 module.exports = {
 
     /**
@@ -72,11 +74,15 @@ module.exports = {
 }
 
 function inspect(ids) {
+    process.stdout.write("Inspecting ... ");
     var param;
     if (Array.isArray(ids)) {
         param = ids.join(" ");
     } else {
         param = ids;
     }
-    return JSON.parse(execSync(`docker inspect ${param}`, {maxBuffer: 10485760}).toString());
+    const result = JSON.parse(execSync(`docker inspect ${param}`, {maxBuffer: 10485760}).toString());
+    readline.moveCursor(process.stdout, -15, 0);
+    readline.clearScreenDown(process.stdout);
+    return result;
 }

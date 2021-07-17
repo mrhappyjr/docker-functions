@@ -8,6 +8,8 @@ const utilsDate = require('../utils/utilsDate');
 const inspectFunc = require('./inspectFunc');
 const table = require('tty-table');
 
+const readline = require('readline');
+
 module.exports = {
 
     containersTableData: function (hasColumnNumber) {
@@ -196,14 +198,22 @@ module.exports = {
         return tableData;
     },
 
-    findNumsInTable: function (txt, tableData, columnReturn) {
+    findNumsInTable: function (txt, tableData, ...columnsReturn) {
         var separateNumbers = utilsNumber.separateNumbers(txt);
         var elements = separateNumbers.reduce((result, element) => {
             var foundElement = tableData.find(obj => {
                 return obj["#"] == element;
             });
             if (foundElement) {
-                result.push(foundElement[columnReturn]);
+                if (columnsReturn.length == 1) {
+                    result.push(foundElement[columnsReturn[0]]);
+                } else {
+                    var newObject = new Object();
+                    for (let i = 0; i < columnsReturn.length; i++) {
+                        newObject[columnsReturn[i]] = foundElement[columnsReturn[i]]
+                    }
+                    result.push(newObject);
+                }
             }
             return result;
         }, []);
@@ -213,6 +223,15 @@ module.exports = {
         }
     
         return elements;
+    },
+
+    imageExists: function (image) {
+        try {
+            var imageData = inspectFunc.getImagesData(image);
+            return ((image == imageData[0].ImageName) || (image == imageData[0].ImageId) || ((image + ":latest") == imageData[0].ImageName));
+        } catch (exception) {
+            return false;
+        }
     }
 
 }
@@ -225,8 +244,12 @@ module.exports = {
  * @return {Array} of ids
  */
 function getIds(command) {
-    var ids = execSync(command).toString();
-    return utilsString.toArray(ids, '\n');
+    process.stdout.write("Reading ... ");
+    const ids = execSync(command).toString();
+    const result = utilsString.toArray(ids, '\n');
+    readline.moveCursor(process.stdout, -12, 0);
+    readline.clearScreenDown(process.stdout);
+    return result;
 }
 
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

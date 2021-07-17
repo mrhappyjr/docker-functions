@@ -12,11 +12,9 @@ module.exports = async (p, o) => {
     const mensage = o.all ? "STOP all" : "STOP normal";
     //console.log(mensage);
 
-    console.log('Loading containers ...');
-
     var containerData = listFunc.containersTableRender(true);
 
-    var answer = await utilsQuestion.questionExample(
+    var answer = await utilsQuestion.makeQuestion(
         'Which containers do you want to stop (enter the numbers # separated by \",\" or \"-\" for range)? ');
     
     try {

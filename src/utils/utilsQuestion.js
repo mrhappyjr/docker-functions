@@ -24,7 +24,7 @@ module.exports = {
     await question(txt, defaultAnswer)
     rl.close()
     if (yes_no && yes_no == true) {
-      if (answer.toLowerCase() == "y" || answer.toLowerCase() == "yes") {
+      if (answer && answer.toLowerCase() == "y" || answer.toLowerCase() == "yes") {
         answer = true;
       } else {
         answer = false;

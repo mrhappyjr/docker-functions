@@ -15,9 +15,13 @@ module.exports = async (p, o) => {
     try {
         var containerData = listFunc.containersTableRender(true);
 
+        console.log(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).`.bgBlue);
         var answer = await utilsQuestion.makeQuestion(
-            'Which containers do you want to stop (enter the numbers # separated by \",\" or \"-\" for range)? ');
+            `Which containers do you want to stop? `);
     
+        if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
+            answer = `1-${containerData.length}`;
+        }
         var containersToStop = listFunc.findNumsInTable(answer, containerData, "ContainerName");
         console.log(`Containers to stop: ${containersToStop.join(" ")}`);
         console.log("");

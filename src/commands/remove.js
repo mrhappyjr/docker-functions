@@ -20,37 +20,47 @@ module.exports = async (p, o) => {
 
         console.log('When doing remove, if you have not committed the containers and you have not made copies of the images, you may lose important information.'.brightRed);
         console.log("");
-        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).` +
+        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (all), \"ndb\" (NoDataBase) or numbers (column #) separated by \",\" or \"-\" (range).` +
             `\nWhich containers and images do you want to remove? `);
     
+        var containersToRemove;
+        var imagesToRemove;
         if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
             answer = `1-${containersData.length + imagesData.length}`;
+        } else if (answer && answer.toLowerCase() == "ndb") {
+            containersToRemove = listFunc.containersNoDB("ContainerName");
+            imagesToRemove = listFunc.imagesNoDB("ImageName", "ImageId");        
         }
 
         var existContainers = true;
         var existImages = true;
-        try {
-            var containersToRemove = listFunc.findNumsInTable(answer, containersData, "ContainerName");
-        } catch (exception) {
-            if (exception instanceof customErrors.NotFoundError) {
-                existContainers = false;
-            } else {
-                throw exception;
+
+        if (containersToRemove === undefined) {
+            try {
+                containersToRemove = listFunc.findNumsInTable(answer, containersData, "ContainerName");
+            } catch (exception) {
+                if (exception instanceof customErrors.NotFoundError) {
+                    existContainers = false;
+                } else {
+                    throw exception;
+                }
             }
         }
-        try {
-            var imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName", "ImageId");
-            imagesToRemove = imagesToRemove.map(image => {
-                var newImage = new Object();
-                newImage.ImageName = utilsString.replaceAll(image.ImageName, "\n", "");
-                newImage.ImageId = image.ImageId;
-                return newImage;
-            });
-        } catch (exception) {
-            if (exception instanceof customErrors.NotFoundError) {
-                existImages = false;
-            } else {
-                throw exception;
+        if (imagesToRemove === undefined) {
+            try {
+                imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName", "ImageId");
+                imagesToRemove = imagesToRemove.map(image => {
+                    var newImage = new Object();
+                    newImage.ImageName = utilsString.replaceAll(image.ImageName, "\n", "");
+                    newImage.ImageId = image.ImageId;
+                    return newImage;
+                });
+            } catch (exception) {
+                if (exception instanceof customErrors.NotFoundError) {
+                    existImages = false;
+                } else {
+                    throw exception;
+                }
             }
         }
         if (containersToRemove && containersToRemove.length > 0) {
@@ -72,5 +82,6 @@ module.exports = async (p, o) => {
         }
     } catch (exception) {
         console.log(`${exception}`.brightRed);
+        console.log(`${exception.stack}`.brightRed);
     }
 }

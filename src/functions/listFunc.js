@@ -222,6 +222,30 @@ module.exports = {
         return elements;
     },
 
+    containersDB: function (...columnsReturn) {
+        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.DockerizeService == 'gr-db');
+
+        return readColumns(filterContainers, ...columnsReturn);
+    },
+
+    imagesDB: function (...columnsReturn) {
+        var filterImages = inspectFunc.getAllImagesData().filter(image => image.MySQLversion && image.MySQLversion != '');
+
+        return readColumns(filterImages, ...columnsReturn);
+    },
+
+    containersNoDB: function (...columnsReturn) {
+        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.DockerizeService != 'gr-db');
+
+        return readColumns(filterContainers, ...columnsReturn);
+    },
+
+    imagesNoDB: function (...columnsReturn) {
+        var filterImages = inspectFunc.getAllImagesData().filter(image => !image.MySQLversion && image.MySQLversion == '');
+
+        return readColumns(filterImages, ...columnsReturn);
+    },
+
     imageExists: function (image) {
         try {
             var imageData = inspectFunc.getImagesData(image);
@@ -250,23 +274,26 @@ module.exports = {
     imageContainers: function (imageId, ...columnsReturn) {
         var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSourceId == imageId);
 
-        if (columnsReturn && columnsReturn.length > 0) {
-            filterContainers = filterContainers.map(container => {
-                if (columnsReturn.length == 1) {
-                    return container[columnsReturn[0]];
-                } else {
-                    var newObject = new Object();
-                    for (let i = 0; i < columnsReturn.length; i++) {
-                        newObject[columnsReturn[i]] = container[columnsReturn[i]]
-                    }
-                    return newObject;
-                }
-            });
-        }
-
-        return filterContainers;
+        return readColumns(filterContainers, ...columnsReturn);
     }
 
+}
+
+function readColumns(dataArray, ...columnsReturn) {
+    if (columnsReturn && columnsReturn.length > 0) {
+        dataArray = dataArray.map(element => {
+            if (columnsReturn.length == 1) {
+                return element[columnsReturn[0]];
+            } else {
+                var newObject = new Object();
+                for (let i = 0; i < columnsReturn.length; i++) {
+                    newObject[columnsReturn[i]] = element[columnsReturn[i]]
+                }
+                return newObject;
+            }
+        });
+    }
+    return dataArray;
 }
 
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

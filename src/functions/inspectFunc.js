@@ -101,6 +101,11 @@ function inspect(ids) {
     } else {
         param = ids;
     }
+    if (param == "") {
+        readline.moveCursor(process.stdout, -15, 0);
+        readline.clearScreenDown(process.stdout);
+        return new Array();
+    }
     try {
         const result = JSON.parse(execSync(`docker inspect ${param}`, {stdio: 'pipe', maxBuffer: 10485760}).toString());
         readline.moveCursor(process.stdout, -15, 0);

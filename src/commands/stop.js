@@ -15,9 +15,8 @@ module.exports = async (p, o) => {
     try {
         var containerData = listFunc.containersTableRender(true);
 
-        console.log(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).`.bgBlue);
-        var answer = await utilsQuestion.makeQuestion(
-            `Which containers do you want to stop? `);
+        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).` +
+            `\nWhich containers do you want to stop? `);
     
         if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
             answer = `1-${containerData.length}`;

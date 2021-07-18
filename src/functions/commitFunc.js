@@ -52,7 +52,7 @@ module.exports = {
             } while ((stopContainer == true) && (containerStatus != "exited"));
             process.stdout.write(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
             try {
-                execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`, {stdio: 'pipe'}).toString();
+                execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`, {stdio: 'pipe'});
             } finally {
                 console.log("");
                 console.log("");

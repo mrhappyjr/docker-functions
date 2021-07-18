@@ -22,21 +22,23 @@ module.exports = {
             newElement.ContainerId = element.ContainerId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
             if (element.Status == "exited") {
-                newElement.Status = "Exited (" + element.ExitCode + ") " + utilsDate.dateAgo(element.FinishedAt) + ' ago';
+                newElement.Status = `Exited (${element.ExitCode})`.white.bgRed + `\n` + `${utilsDate.dateAgo(element.FinishedAt)} ago`.white.bgRed + ` `.reset;
             } else {
-                newElement.Status = "Up " + utilsDate.dateAgo(element.StartedAt);
+                newElement.Status = `Up`;
                 if (element.Health) {
-                    newElement.Status = newElement.Status + " (" + element.Health + ") ";
+                    newElement.Status += " (" + element.Health + ")";
                 }
+                newElement.Status = newElement.Status.black.bgGreen + `\n` + utilsDate.dateAgo(element.StartedAt).black.bgGreen + ` `.reset;
             }
-            newElement.ImageSource = element.ImageSource;
-            newElement.DockerizeService = element.DockerizeWorkingDir 
-                // + '/' 
-                // + element.DockerizeConfigFile
-                + ' => ' 
-                + element.DockerizeService;
-            newElement.MySQLversion = element.MySQLversion;
-            newElement.MySQLpass = element.MySQLpass;
+            newElement.ImageSource = utilsString.replaceAll(element.ImageSource, "/", "/\n");
+            newElement.DockerizeService = element.DockerizeWorkingDir + '\n' + element.DockerizeService;
+            newElement.MySQLversion = "";
+            if (element.MySQLversion && element.MySQLversion != "") {
+                newElement.MySQLversion = element.MySQLversion
+            }
+            if (element.MySQLpass && element.MySQLpass != "") {
+                newElement.MySQLversion += "\n" + element.MySQLpass;
+            }
 
             return newElement;
         });
@@ -66,14 +68,7 @@ module.exports = {
             },
             {
                 value: "Status",
-                alias: "Status (ExitCode/Health)",
-                formatter: function (value) {
-                    if (value.startsWith("Up ")) {
-                        return this.style(value, "bgGreen", "black")
-                    } else {
-                        return this.style(value, "bgRed", "white")
-                    }
-                }
+                alias: "Status\n(ExitCode/Health)"
             },
             {
                 value: "ImageSource",
@@ -81,14 +76,12 @@ module.exports = {
             },
             {
                 value: "DockerizeService",
+                alias: "DockerizePath\nDockerizeService",
                 formatter: dbContainerCellColor
             },
             {
                 value: "MySQLversion",
-                formatter: dbContainerCellColor
-            },
-            {
-                value: "MySQLpass",
+                alias: "MySQLversion\nMySQLpass",
                 formatter: dbContainerCellColor
             }
         ];
@@ -110,12 +103,17 @@ module.exports = {
 
         imageData = imageData.map(element => {
             const newElement = {};
-            newElement.ImageName = element.ImageName;
+            newElement.ImageName = utilsString.replaceAll(element.ImageName, "/", "/\n");
             newElement.ImageId = element.ImageId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
             newElement.ImageParent = element.ImageParent;
-            newElement.MySQLversion = element.MySQLversion;
-            newElement.MySQLpass = element.MySQLpass
+            newElement.MySQLversion = "";
+            if (element.MySQLversion && element.MySQLversion != "") {
+                newElement.MySQLversion = element.MySQLversion
+            }
+            if (element.MySQLpass && element.MySQLpass != "") {
+                newElement.MySQLversion += "\n" + element.MySQLpass;
+            }
             newElement.Size = utilsNumber.size(element.Size);
 
             return newElement;
@@ -150,10 +148,7 @@ module.exports = {
             },
             {
                 value: "MySQLversion",
-                formatter: dbImageCellColor
-            },
-            {
-                value: "MySQLpass",
+                alias: "MySQLversion\nMySQLpass",
                 formatter: dbImageCellColor
             },
             {
@@ -236,6 +231,19 @@ module.exports = {
             }
             throw exception;
         }
+    },
+
+    containerExists: function (container) {
+        try {
+            var containerData = inspectFunc.getContainersData(container);
+            return ((utilsString.replaceAll(container, "/", "") == utilsString.replaceAll(containerData[0].ContainerName, "/", ""))
+                 || (container == containerData[0].ContainerId));
+        } catch (exception) {
+            if (exception instanceof customErrors.NotFoundError) {
+                return false;
+            }
+            throw exception;
+        }
     }
 
 }
@@ -266,7 +274,7 @@ function getIds(command) {
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
     const row = inputData[rowIndex] // get the whole row
     
-    if (row.DockerizeService.endsWith(' => gr-db')) {
+    if (row.DockerizeService.endsWith('\ngr-db')) {
         return this.style(cellValue, "green");
     } else {
         return this.style(cellValue);

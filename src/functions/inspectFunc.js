@@ -59,7 +59,7 @@ module.exports = {
         try {
             imagesData = imagesData.map(element => {
                 const newElement = {};
-                newElement.ImageName = element.RepoTags;
+                newElement.ImageName = element.RepoTags.toString();
                 newElement.ImageId = element.Id.substring(7, 19);
                 newElement.Created = element.Created;
                 newElement.ImageParent = element.Parent.substring(7, 19);

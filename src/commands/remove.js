@@ -19,9 +19,8 @@ module.exports = async (p, o) => {
 
         console.log('When doing remove, if you have not committed the containers and you have not made copies of the images, you may lose important information.'.brightRed);
         console.log("");
-        console.log(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).`.bgBlue);
-        var answer = await utilsQuestion.makeQuestion(
-            `Which containers and images do you want to remove? `);
+        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).` +
+            `\nWhich containers and images do you want to remove? `);
     
         if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
             answer = `1-${containersData.length + imagesData.length}`;
@@ -47,12 +46,17 @@ module.exports = async (p, o) => {
                 throw exception;
             }
         }
-        console.log(`Containers to remove:\n  ${containersToRemove ? containersToRemove.join("\n  ") : ""}`);
-        console.log("");
-        console.log(`Images to remove:\n  ${imagessToRemove ? imagessToRemove.join("\n  ") : ""}`);
-        console.log("");
+        if (containersToRemove && containersToRemove.length > 0) {
+            console.log(`Containers to remove:\n  ${containersToRemove.join("\n  ")}`);
+        }
+        if (imagessToRemove && imagessToRemove.length > 0) {
+            console.log(`Images to remove:\n  ${imagessToRemove.join("\n  ")}`);
+        }
 
-        containersToRemove.forEach(container => removeFunc.removeContainer(container));
+        for (const container of containersToRemove) {
+            console.log("");
+            await removeFunc.removeContainer(container);
+        }
     } catch (exception) {
         console.log(`${exception}`.brightRed);
     }

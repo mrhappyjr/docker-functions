@@ -1,10 +1,7 @@
 module.exports = {
   
   replaceAll: function (txt, search, replace) {
-    while (txt.includes(search)) {
-      txt = txt.replace(search, replace);
-    }
-    return txt;
+    return txt.split(search).join(replace);
   },
 
   replaceEOL: function (txt, replace) {

@@ -29,7 +29,9 @@ module.exports = async (p, o) => {
             answer = `1-${containersData.length + imagesData.length}`;
         } else if (answer && answer.toLowerCase() == "ndb") {
             containersToRemove = listFunc.containersNoDB("ContainerName");
-            imagesToRemove = listFunc.imagesNoDB("ImageName", "ImageId");        
+            imagesToRemove = listFunc.imagesNoDB("ImageName", "ImageId", "Created");
+            // sort by date to remove the daughter images first
+            imagesToRemove.sort((a, b) => (a.Created > b.Created) ? -1 : ((b.Created > a.Created) ? 1 : 0));
         }
 
         var existContainers = true;

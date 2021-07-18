@@ -3,6 +3,7 @@ require('colors');
 const execSync = require('child_process').execSync;
 const inspectFunc = require('./inspectFunc');
 const utilsQuestion = require('../utils/utilsQuestion');
+const utilsString = require('../utils/utilsString');
 const listFunc = require('./listFunc');
 const stopFunc = require('./stopFunc');
 
@@ -12,7 +13,7 @@ module.exports = {
         console.log(`COMMIT container: ` + containerAndImage.ContainerName.green)
         var imageName = await utilsQuestion.makeQuestion(
             `Write the ${"name".green} of the ${"image".green}. ${"It is recommended to rename the image or it will be overwritten".brightRed}: `, 
-            containerAndImage.ImageSource);
+            utilsString.replaceAll(containerAndImage.ImageSourceName, "\n", ""));
         var proceed = false;
         // check if there is an image with the same name
         do {

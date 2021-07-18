@@ -17,7 +17,7 @@ module.exports = async (p, o) => {
         var answer = await utilsQuestion.makeQuestion(
             'Which containers do you want to commit (enter the numbers # separated by \",\" or \"-\" for range)? ');
             
-        var toCommit = listFunc.findNumsInTable(answer, containerData, "ContainerName", "ImageSource");
+        var toCommit = listFunc.findNumsInTable(answer, containerData, "ContainerName", "ImageSourceName");
         var containersToCommit = toCommit.map(containerAndImage => containerAndImage.ContainerName);
         console.log(`Containers to commit: ${containersToCommit.join(" # ")}`);
         for (const containerAndImage of toCommit) {

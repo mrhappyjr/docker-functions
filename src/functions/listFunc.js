@@ -30,7 +30,8 @@ module.exports = {
                 }
                 newElement.Status = newElement.Status.black.bgGreen + `\n` + utilsDate.dateAgo(element.StartedAt).black.bgGreen + ` `.reset;
             }
-            newElement.ImageSource = utilsString.replaceAll(element.ImageSource, "/", "/\n");
+            newElement.ImageSourceName = utilsString.replaceAll(element.ImageSourceName, "/", "/\n");
+            newElement.ImageSourceId = element.ImageSourceId;
             newElement.DockerizeService = element.DockerizeWorkingDir + '\n' + element.DockerizeService;
             newElement.MySQLversion = "";
             if (element.MySQLversion && element.MySQLversion != "") {
@@ -71,7 +72,7 @@ module.exports = {
                 alias: "Status\n(ExitCode/Health)"
             },
             {
-                value: "ImageSource",
+                value: "ImageSourceName",
                 formatter: dbContainerCellColor
             },
             {
@@ -247,7 +248,7 @@ module.exports = {
     },
 
     imageContainers: function (imageName, ...columnsReturn) {
-        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSource == imageName);
+        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSourceName == imageName);
 
         if (columnsReturn && columnsReturn.length > 0) {
             filterContainers = filterContainers.map(container => {

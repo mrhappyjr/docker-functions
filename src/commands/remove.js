@@ -2,6 +2,7 @@
 require('colors');
 const customErrors = require('../errors/customErrors');
 const utilsQuestion = require('../utils/utilsQuestion');
+const utilsString = require('../utils/utilsString');
 const utilsLog = require('../utils/utilsLog');
 const listFunc = require('../functions/listFunc');
 const removeFunc = require('../functions/removeFunc');
@@ -38,7 +39,8 @@ module.exports = async (p, o) => {
             }
         }
         try {
-            var imagessToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName");
+            var imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName");
+            imagesToRemove = imagesToRemove.map(image => utilsString.replaceAll(image, "\n", ""))
         } catch (exception) {
             if (exception instanceof customErrors.NotFoundError) {
                 existImages = false;
@@ -48,14 +50,19 @@ module.exports = async (p, o) => {
         }
         if (containersToRemove && containersToRemove.length > 0) {
             console.log(`Containers to remove:\n  ${containersToRemove.join("\n  ")}`);
-        }
-        if (imagessToRemove && imagessToRemove.length > 0) {
-            console.log(`Images to remove:\n  ${imagessToRemove.join("\n  ")}`);
-        }
 
-        for (const container of containersToRemove) {
-            console.log("");
-            await removeFunc.removeContainer(container);
+            for (const container of containersToRemove) {
+                console.log("");
+                await removeFunc.removeContainer(container);
+            }
+        }
+        if (imagesToRemove && imagesToRemove.length > 0) {
+            console.log(`Images to remove:\n  ${imagesToRemove.join("\n  ")}`);
+
+            for (const image of imagesToRemove) {
+                console.log("");
+                await removeFunc.removeImage(image);
+            }
         }
     } catch (exception) {
         console.log(`${exception}`.brightRed);

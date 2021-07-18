@@ -14,9 +14,9 @@ const readline = require('readline');
 module.exports = {
 
     containersTableData: function (hasColumnNumber, initNumber) {
-        var containerData = inspectFunc.getAllContainersData();
+        var containersData = inspectFunc.getAllContainersData();
 
-        containerData = containerData.map(element => {
+        containersData = containersData.map(element => {
             const newElement = {};
             newElement.ContainerName = element.ContainerName.substring(1);
             newElement.ContainerId = element.ContainerId;
@@ -43,13 +43,13 @@ module.exports = {
             return newElement;
         });
 
-        utilsArray.orderByColumn(containerData, "ContainerName");
+        utilsArray.orderByColumn(containersData, "ContainerName");
 
         if (hasColumnNumber) {
-            utilsArray.insertNumbersObject(containerData, "#", initNumber);
+            utilsArray.insertNumbersObject(containersData, "#", initNumber);
         }
 
-        return containerData;
+        return containersData;
     },
 
     containersTableHeader: function (hasColumnNumber) {
@@ -99,9 +99,9 @@ module.exports = {
 
     imagesTableData: function (hasColumnNumber, initNumber) {
         //var imageData = getData('docker image ls -aq');
-        var imageData = inspectFunc.getAllImagesData();
+        var imagesData = inspectFunc.getAllImagesData();
 
-        imageData = imageData.map(element => {
+        imagesData = imagesData.map(element => {
             const newElement = {};
             newElement.ImageName = utilsString.replaceAll(element.ImageName, "/", "/\n");
             newElement.ImageId = element.ImageId;
@@ -119,13 +119,13 @@ module.exports = {
             return newElement;
         });
 
-        utilsArray.orderByColumn(imageData, "ImageName");
+        utilsArray.orderByColumn(imagesData, "ImageName");
 
         if (hasColumnNumber) {
-            utilsArray.insertNumbersObject(imageData, "#", initNumber);
+            utilsArray.insertNumbersObject(imagesData, "#", initNumber);
         }
 
-        return imageData;
+        return imagesData;
     },
 
     imagesTableHeader: function (hasColumnNumber) {
@@ -246,8 +246,24 @@ module.exports = {
         }
     },
 
-    imageContainers: function (imageName) {
+    imageContainers: function (imageName, ...columnsReturn) {
+        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSource == imageName);
 
+        if (columnsReturn && columnsReturn.length > 0) {
+            filterContainers = filterContainers.map(container => {
+                if (columnsReturn.length == 1) {
+                    return container[columnsReturn[0]];
+                } else {
+                    var newObject = new Object();
+                    for (let i = 0; i < columnsReturn.length; i++) {
+                        newObject[columnsReturn[i]] = container[columnsReturn[i]]
+                    }
+                    return newObject;
+                }
+            });
+        }
+
+        return filterContainers;
     }
 
 }

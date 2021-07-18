@@ -20,9 +20,11 @@ module.exports = {
                     `Its status is ${containerStatus.toUpperCase().brightRed}. `);
                 console.log(`  If the container is not stopped, it will not be removed.`.brightRed);
                 stopContainer = await utilsQuestion.makeQuestion(
-                    `  Do you want to stop the container ${container.green} (y/n)? `, "yes", true);
+                    `  Do you want to stop the container ${container.green} (y/n)? `, "", true);
                 if (stopContainer == true) {
                     stopFunc.stopContainer(container);
+                } else {
+                    return; // if the container is not stopped, the method is exited.
                 }
             }
         } while ((stopContainer == true) && (containerStatus != "exited"));
@@ -46,37 +48,39 @@ module.exports = {
 
     removeImage: async function (image) {
         console.log(`REMOVE image: ` + image.green)
+        var removeImage = true;
         // check if image has associated containers
-        var containerStatus;
-        do {
-            var stopContainer = false;
-            containerStatus = inspectFunc.getContainerStatus(container);
-            if (containerStatus != "exited") {
-                console.log(`  Container ${container.brightRed} is not stopped. ` + 
-                    `Its status is ${containerStatus.toUpperCase().brightRed}. `);
-                console.log(`  If the container is not stopped, it will not be removed.`.brightRed);
-                stopContainer = await utilsQuestion.makeQuestion(
-                    `  Do you want to stop the container ${container.green} (y/n)? `, "yes", true);
-                if (stopContainer == true) {
-                    stopFunc.stopContainer(container);
+        var imageContainers = listFunc.imageContainers(image, "ContainerName");
+        if (imageContainers && imageContainers.length > 0) {
+            console.log(`  Image ${image.brightRed} has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
+            console.log(`  If the associated containers are not removed the image either.`.brightRed);
+            var removeContainers = await utilsQuestion.makeQuestion(`  Do you want to remove the associated containers (y/n)? `, "", true);
+            if (removeContainers == true) {
+                for (const container of imageContainers) {
+                    console.log("");
+                    await this.removeContainer(container);
                 }
+                imageContainers = listFunc.imageContainers(image, "ContainerName");
+                if (imageContainers && imageContainers.length > 0) {
+                    removeImage = false;
+                    console.log(`  Image ${image.brightRed} will not be removed because has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
+                }
+            } else {
+                removeImage = false;
             }
-        } while ((stopContainer == true) && (containerStatus != "exited"));
-
-        if (containerStatus && containerStatus == "exited") {
-            process.stdout.write(`  Removing container ${container.green} ... `);
+        }
+        if (removeImage == true) {
+            process.stdout.write(`  Removing image ${image.green} ... `);
             try {
-                execSync(`dockerXXXXXXXXXX image rm ${container}`, {stdio: 'pipe'});
+                execSync(`docker image rm ${image}`, {stdio: 'pipe'});
             } finally {
-                if (listFunc.containerExists(container) == true) {
+                if (listFunc.imageExists(image) == true) {
                     console.log(`ERROR`.brightRed);
                 } else {
                     console.log(`SUCCESS`.green);
                 }
                 console.log("");
             }
-        } else {
-            console.log(`  Container ${container.brightRed} will not be removed because its status is ${containerStatus.brightRed}.`);
         }
     }
 

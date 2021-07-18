@@ -39,8 +39,13 @@ module.exports = async (p, o) => {
             }
         }
         try {
-            var imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName");
-            imagesToRemove = imagesToRemove.map(image => utilsString.replaceAll(image, "\n", ""))
+            var imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName", "ImageId");
+            imagesToRemove = imagesToRemove.map(image => {
+                var newImage = new Object();
+                newImage.ImageName = utilsString.replaceAll(image.ImageName, "\n", "");
+                newImage.ImageId = image.ImageId;
+                return newImage;
+            });
         } catch (exception) {
             if (exception instanceof customErrors.NotFoundError) {
                 existImages = false;
@@ -57,7 +62,8 @@ module.exports = async (p, o) => {
             }
         }
         if (imagesToRemove && imagesToRemove.length > 0) {
-            console.log(`Images to remove:\n  ${imagesToRemove.join("\n  ")}`);
+            const imagesToRemoveString = imagesToRemove.map(image => (image.ImageName && image.ImageName != "") ? image.ImageName : image.ImageId).join("\n  ");
+            console.log(`Images to remove:\n  ${imagesToRemoveString}`);
 
             for (const image of imagesToRemove) {
                 console.log("");

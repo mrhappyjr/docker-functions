@@ -47,12 +47,14 @@ module.exports = {
     },
 
     removeImage: async function (image) {
-        console.log(`REMOVE image: ` + image.green)
+        const iName = (image.ImageName && image.ImageName != "") ? image.ImageName : image.ImageId;
+        const iId = image.ImageId;
+        console.log(`REMOVE image: ` + iName.green)
         var removeImage = true;
         // check if image has associated containers
-        var imageContainers = listFunc.imageContainers(image, "ContainerName");
+        var imageContainers = listFunc.imageContainers(iId, "ContainerName");
         if (imageContainers && imageContainers.length > 0) {
-            console.log(`  Image ${image.brightRed} has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
+            console.log(`  Image ${iName.brightRed} has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
             console.log(`  If the associated containers are not removed the image either.`.brightRed);
             var removeContainers = await utilsQuestion.makeQuestion(`  Do you want to remove the associated containers (y/n)? `, "", true);
             if (removeContainers == true) {
@@ -60,21 +62,21 @@ module.exports = {
                     console.log("");
                     await this.removeContainer(container);
                 }
-                imageContainers = listFunc.imageContainers(image, "ContainerName");
+                imageContainers = listFunc.imageContainers(iId, "ContainerName");
                 if (imageContainers && imageContainers.length > 0) {
                     removeImage = false;
-                    console.log(`  Image ${image.brightRed} will not be removed because has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
+                    console.log(`  Image ${iName.brightRed} will not be removed because has associated container${(imageContainers.length == 1) ? "" : "s"} ${imageContainers.join(" # ")}`);
                 }
             } else {
                 removeImage = false;
             }
         }
         if (removeImage == true) {
-            process.stdout.write(`  Removing image ${image.green} ... `);
+            process.stdout.write(`  Removing image ${iName.green} ... `);
             try {
-                execSync(`docker image rm ${image}`, {stdio: 'pipe'});
+                execSync(`docker image rm ${iId}`, {stdio: 'pipe'});
             } finally {
-                if (listFunc.imageExists(image) == true) {
+                if (listFunc.imageExists(iId) == true) {
                     console.log(`ERROR`.brightRed);
                 } else {
                     console.log(`SUCCESS`.green);

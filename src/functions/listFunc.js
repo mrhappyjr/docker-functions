@@ -247,8 +247,8 @@ module.exports = {
         }
     },
 
-    imageContainers: function (imageName, ...columnsReturn) {
-        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSourceName == imageName);
+    imageContainers: function (imageId, ...columnsReturn) {
+        var filterContainers = inspectFunc.getAllContainersData().filter(container => container.ImageSourceId == imageId);
 
         if (columnsReturn && columnsReturn.length > 0) {
             filterContainers = filterContainers.map(container => {

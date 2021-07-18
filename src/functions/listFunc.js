@@ -195,8 +195,8 @@ module.exports = {
         return tableData;
     },
 
-    findNumsInTable: function (txt, tableData, ...columnsReturn) {
-        var separateNumbers = utilsNumber.separateNumbers(txt);
+    findNumsInTable: function (numbers, tableData, ...columnsReturn) {
+        var separateNumbers = utilsNumber.separateNumbers(numbers);
         var elements = separateNumbers.reduce((result, element) => {
             var foundElement = tableData.find(obj => {
                 return obj["#"] == element;
@@ -216,7 +216,7 @@ module.exports = {
         }, []);
     
         if (elements.length == 0) {
-            throw new customErrors.NotFoundError(`ERROR: No elements found with \'${txt}\' response`.brightRed);
+            throw new customErrors.NotFoundError(`ERROR: No elements found with numbers \'${numbers}\'`.brightRed);
         }
     
         return elements;

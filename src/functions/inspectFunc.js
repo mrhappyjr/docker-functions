@@ -82,7 +82,7 @@ module.exports = {
         }
     },
 
-    getAllImagesData: function (imagesId) {
+    getAllImagesData: function () {
         return this.getImagesData(getIds('docker image ls -aq'));
     },
 

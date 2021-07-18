@@ -13,6 +13,6 @@ module.exports = (p, o) => {
         listFunc.containersTableRender();
         listFunc.imagesTableRender();
     } catch (exception) {
-        console.log(`${exception}`.red);
+        console.log(`${exception}`.brightRed);
     }
 }

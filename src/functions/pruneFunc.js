@@ -5,8 +5,8 @@ const inspectFunc = require('./inspectFunc');
 
 module.exports = {
 
-    stopContainer: function (container) {
-        process.stdout.write(`    Stopping container: ` + container.green + ` ... `)
+    pruneContainer: function (container) {
+        process.stdout.write(`    Pruning container: ` + container.green + ` ... `)
         execSync(`docker stop ${container}`).toString();
 
         var status = inspectFunc.getContainerStatus(container);

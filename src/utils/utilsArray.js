@@ -27,8 +27,8 @@ module.exports = {
     return resultArray;
   },
 
-  insertNumbersObject: function (array, columnName) {
-    var number = 1;
+  insertNumbersObject: function (array, columnName, initNumber) {
+    var number = initNumber ? initNumber : 1;
     var resultArray = array.map(function(element) {
       element[columnName] = number++;
       return element;

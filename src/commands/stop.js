@@ -23,10 +23,10 @@ module.exports = async (p, o) => {
             answer = `1-${containerData.length}`;
         }
         var containersToStop = listFunc.findNumsInTable(answer, containerData, "ContainerName");
-        console.log(`Containers to stop: ${containersToStop.join(" ")}`);
+        console.log(`Containers to stop: ${containersToStop.join(" # ")}`);
         console.log("");
         containersToStop.forEach(container => stopFunc.stopContainer(container));
     } catch (exception) {
-        console.log(`${exception}`.red);
+        console.log(`${exception}`.brightRed);
     }
 }

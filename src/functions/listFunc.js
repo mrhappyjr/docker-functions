@@ -13,7 +13,7 @@ const readline = require('readline');
 
 module.exports = {
 
-    containersTableData: function (hasColumnNumber) {
+    containersTableData: function (hasColumnNumber, initNumber) {
         var containerData = inspectFunc.getContainersData(getIds('docker ps -aq'));
 
         containerData = containerData.map(element => {
@@ -44,7 +44,7 @@ module.exports = {
         utilsArray.orderByColumn(containerData, "ContainerName");
 
         if (hasColumnNumber) {
-            utilsArray.insertNumbersObject(containerData, "#");
+            utilsArray.insertNumbersObject(containerData, "#", initNumber);
         }
 
         return containerData;
@@ -104,7 +104,7 @@ module.exports = {
         return header;
     },
 
-    imagesTableData: function (hasColumnNumber) {
+    imagesTableData: function (hasColumnNumber, initNumber) {
         //var imageData = getData('docker image ls -aq');
         var imageData = inspectFunc.getImagesData(getIds('docker image ls -aq'));
 
@@ -124,7 +124,7 @@ module.exports = {
         utilsArray.orderByColumn(imageData, "ImageName");
 
         if (hasColumnNumber) {
-            utilsArray.insertNumbersObject(imageData, "#");
+            utilsArray.insertNumbersObject(imageData, "#", initNumber);
         }
 
         return imageData;
@@ -187,14 +187,14 @@ module.exports = {
         console.log(table(header, data, options).render());
     },
 
-    containersTableRender: function (hasColumnNumber) {
-        var tableData = this.containersTableData(hasColumnNumber);
+    containersTableRender: function (hasColumnNumber, initNumber) {
+        var tableData = this.containersTableData(hasColumnNumber, initNumber);
         this.tableRender(tableData, this.containersTableHeader(hasColumnNumber), this.tableOptions());
         return tableData;
     },
 
-    imagesTableRender: function (hasColumnNumber) {
-        var tableData = this.imagesTableData(hasColumnNumber);
+    imagesTableRender: function (hasColumnNumber, initNumber) {
+        var tableData = this.imagesTableData(hasColumnNumber, initNumber);
         this.tableRender(tableData, this.imagesTableHeader(hasColumnNumber), this.tableOptions());
         return tableData;
     },
@@ -220,7 +220,7 @@ module.exports = {
         }, []);
     
         if (elements.length == 0) {
-            throw `ERROR: No elements found with \'${txt}\' response`.red;
+            throw new customErrors.NotFoundError(`ERROR: No elements found with \'${txt}\' response`.brightRed);
         }
     
         return elements;
@@ -258,7 +258,7 @@ function getIds(command) {
     } catch (exception) {
         readline.moveCursor(process.stdout, -12, 0);
         readline.clearScreenDown(process.stdout);
-        console.log(`${exception}`.red);
+        console.log(`${exception}`.brightRed);
         throw `ERROR reading indexes from command ${command}`;
     }
 }

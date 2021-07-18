@@ -19,13 +19,13 @@ module.exports = async (p, o) => {
             
         var toCommit = listFunc.findNumsInTable(answer, containerData, "ContainerName", "ImageSource");
         var containersToCommit = toCommit.map(containerAndImage => containerAndImage.ContainerName);
-        console.log(`Containers to commit: ${containersToCommit.join(" ")}`);
+        console.log(`Containers to commit: ${containersToCommit.join(" # ")}`);
         for (const containerAndImage of toCommit) {
             console.log("");
             await commitFunc.commitContainer(containerAndImage);
         }
     } catch (exception) {
-        console.log(`${exception}`.red);
+        console.log(`${exception}`.brightRed);
     }
 
 }

@@ -41,7 +41,7 @@ module.exports = {
             
             return containersData;
         } catch (exception) {
-            console.log(`${exception}`.red);
+            console.log(`${exception}`.brightRed);
             throw `ERROR getting data from containers ${containersId}`;
         }
     },
@@ -72,7 +72,7 @@ module.exports = {
             
             return imagesData;
         } catch (exception) {
-            console.log(`${exception}`.red);
+            console.log(`${exception}`.brightRed);
             throw `ERROR getting data from images ${imagesId}`;
         }
     },
@@ -102,12 +102,11 @@ function inspect(ids) {
         readline.clearScreenDown(process.stdout);
         var stdoutExc = utilsString.replaceEOL(exception.stdout.toString(), "");
         if (exception.stdout && stdoutExc != '[]') {
-            console.log(`${exception.stderr}`.red);
+            console.log(`${exception.stderr}`.brightRed);
             console.log(`${exception.stdout}`.green)
             return JSON.parse(exception.stdout);
         } else {
-            //console.log(`${exception}`.red);
-            throw new customErrors.NotFoundError(`${exception}`.red + `\n` + `ERROR inspecting indexes ${ids}`);
+            throw new customErrors.NotFoundError(`${exception}`.brightRed + `\n` + `ERROR inspecting indexes ${ids}`);
         }
     }
 }

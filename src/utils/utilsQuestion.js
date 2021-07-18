@@ -35,6 +35,8 @@ module.exports = {
       if (!txt.endsWith(endStyle)) {
         txt = txt + endStyle;
       }
+    } else {
+      txt = iniStyle + txt + endStyle;
     }
     await question(txt, defaultAnswer)
     rl.close()

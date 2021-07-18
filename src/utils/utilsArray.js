@@ -36,13 +36,18 @@ module.exports = {
     return resultArray;
   },
 
-  orderByColumn: function (array, columnIndex, desc) {
+  orderByColumn: function (array, columnIndex, desc, secondColumnIndex) {
     var result = 0;
     array.sort(function( a, b ) {
-      if (a[columnIndex] < b[columnIndex]) {
+      if (secondColumnIndex && (a[columnIndex] == b[columnIndex])) {
+        if (a[secondColumnIndex] < b[secondColumnIndex]) {
+          result = -1;
+        } else if (a[secondColumnIndex] > b[secondColumnIndex]) {
+          result = 1;
+        }
+      } else if (a[columnIndex] < b[columnIndex]) {
         result = -1;
-      }
-      if ((a[columnIndex] > b[columnIndex])) {
+      } else {
         result = 1;
       }
       if (desc) {

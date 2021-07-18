@@ -120,7 +120,7 @@ module.exports = {
             return newElement;
         });
 
-        utilsArray.orderByColumn(imagesData, "ImageName");
+        utilsArray.orderByColumn(imagesData, "ImageName", false, "ImageId");
 
         if (hasColumnNumber) {
             utilsArray.insertNumbersObject(imagesData, "#", initNumber);

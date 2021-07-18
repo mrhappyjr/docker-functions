@@ -37,18 +37,19 @@ module.exports = {
         if (answer == true) {
             // check if container is stopped
             do {
+                var stopContainer = false;
                 var containerStatus = inspectFunc.getContainerStatus(containerAndImage.ContainerName);
                 if (containerStatus != "exited") {
                     console.log(`Container ${containerAndImage.ContainerName.brightRed} is not stopped. ` + 
                         `Its status is ${containerStatus.toUpperCase().brightRed}. `);
                     console.log(`If an image is created from a not stopped container, the image data may be corrupted.`.brightRed);
-                    var stopContainer = await utilsQuestion.makeQuestion(
+                    stopContainer = await utilsQuestion.makeQuestion(
                         `Do you want to stop the container ${containerAndImage.ContainerName.green} (y/n)? `, "yes", true);
                     if (stopContainer == true) {
                         stopFunc.stopContainer(containerAndImage.ContainerName);
                     }
                 }
-            } while (containerStatus != "exited");
+            } while ((stopContainer == true) && (containerStatus != "exited"));
             process.stdout.write(`Creating image ${imageName.green} from container ${containerAndImage.ContainerName.green} ...`);
             try {
                 execSync(`docker commit "${containerAndImage.ContainerName}" "${imageName}"`, {stdio: 'pipe'}).toString();

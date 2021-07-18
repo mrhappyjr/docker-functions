@@ -66,7 +66,7 @@ module.exports = {
         if (containerStatus && containerStatus == "exited") {
             process.stdout.write(`  Removing container ${container.green} ... `);
             try {
-                execSync(`dockerXXXXXXXXXX container rm ${container}`, {stdio: 'pipe'});
+                execSync(`dockerXXXXXXXXXX image rm ${container}`, {stdio: 'pipe'});
             } finally {
                 if (listFunc.containerExists(container) == true) {
                     console.log(`ERROR`.brightRed);

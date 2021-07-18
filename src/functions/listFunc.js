@@ -14,7 +14,7 @@ const readline = require('readline');
 module.exports = {
 
     containersTableData: function (hasColumnNumber, initNumber) {
-        var containerData = inspectFunc.getContainersData(getIds('docker ps -aq'));
+        var containerData = inspectFunc.getAllContainersData();
 
         containerData = containerData.map(element => {
             const newElement = {};
@@ -99,7 +99,7 @@ module.exports = {
 
     imagesTableData: function (hasColumnNumber, initNumber) {
         //var imageData = getData('docker image ls -aq');
-        var imageData = inspectFunc.getImagesData(getIds('docker image ls -aq'));
+        var imageData = inspectFunc.getAllImagesData();
 
         imageData = imageData.map(element => {
             const newElement = {};
@@ -244,31 +244,12 @@ module.exports = {
             }
             throw exception;
         }
+    },
+
+    imageContainers: function (imageName) {
+
     }
 
-}
-
-/**
- * From a command, the function returns a array of ids
- * 
- * @param {String} command command to get a list of ids
- * 
- * @return {Array} of ids
- */
-function getIds(command) {
-    process.stdout.write("Reading ... ");
-    try {
-        const ids = execSync(command, {stdio: 'pipe'}).toString();
-        const result = utilsString.toArray(ids, '\n');
-        readline.moveCursor(process.stdout, -12, 0);
-        readline.clearScreenDown(process.stdout);
-        return result;
-    } catch (exception) {
-        readline.moveCursor(process.stdout, -12, 0);
-        readline.clearScreenDown(process.stdout);
-        console.log(`${exception}`.brightRed);
-        throw `ERROR reading indexes from command ${command}`;
-    }
 }
 
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {

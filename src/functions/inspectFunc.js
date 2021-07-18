@@ -46,6 +46,10 @@ module.exports = {
         }
     },
 
+    getAllContainersData: function () {
+        return this.getContainersData(getIds('docker ps -aq'));
+    },
+
     /**
      * Search for image information using the "docker inspect" command
      * 
@@ -75,6 +79,10 @@ module.exports = {
             console.log(`${exception}`.brightRed);
             throw `ERROR getting data from images ${imagesId}`;
         }
+    },
+
+    getAllImagesData: function (imagesId) {
+        return this.getImagesData(getIds('docker image ls -aq'));
     },
 
     getContainerStatus: function (containerId) {
@@ -108,5 +116,28 @@ function inspect(ids) {
         } else {
             throw new customErrors.NotFoundError(`${exception}`.brightRed + `\n` + `ERROR inspecting indexes ${ids}`);
         }
+    }
+}
+
+/**
+ * From a command, the function returns a array of ids
+ * 
+ * @param {String} command command to get a list of ids
+ * 
+ * @return {Array} of ids
+ */
+function getIds(command) {
+    process.stdout.write("Reading ... ");
+    try {
+        const ids = execSync(command, {stdio: 'pipe'}).toString();
+        const result = utilsString.toArray(ids, '\n');
+        readline.moveCursor(process.stdout, -12, 0);
+        readline.clearScreenDown(process.stdout);
+        return result;
+    } catch (exception) {
+        readline.moveCursor(process.stdout, -12, 0);
+        readline.clearScreenDown(process.stdout);
+        console.log(`${exception}`.brightRed);
+        throw `ERROR reading indexes from command ${command}`;
     }
 }

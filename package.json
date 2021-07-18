@@ -12,7 +12,7 @@
     "df-list": "./src/commands/df-list.js",
     "df-stop": "./src/commands/df-stop.js",
     "df-commit": "./src/commands/df-commit.js",
-    "df-prune": "./src/commands/df-prune.js"
+    "df-remove": "./src/commands/df-remove.js"
   },
   "dependencies": {
     "colors": "^1.4.0",

@@ -22,15 +22,20 @@ module.exports = {
             newElement.ContainerId = element.ContainerId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
             if (element.Status == "exited") {
-                newElement.Status = `Exited (${element.ExitCode})`.white.bgRed + `\n` + `${utilsDate.dateAgo(element.FinishedAt)} ago`.white.bgRed + ` `.reset;
+                newElement.Status = `Exited (${element.ExitCode}) `.white.bgRed 
+                //+ `\n` 
+                + `${utilsDate.dateAgo(element.FinishedAt)} ago`.white.bgRed + ` `.reset;
             } else {
-                newElement.Status = `Up`;
+                newElement.Status = `Up `;
                 if (element.Health) {
-                    newElement.Status += " (" + element.Health + ")";
+                    newElement.Status += "(" + element.Health + ") ";
                 }
-                newElement.Status = newElement.Status.black.bgGreen + `\n` + utilsDate.dateAgo(element.StartedAt).black.bgGreen + ` `.reset;
+                newElement.Status = newElement.Status.black.bgGreen 
+                //+ `\n` 
+                + utilsDate.dateAgo(element.StartedAt).black.bgGreen + ` `.reset;
             }
-            newElement.ImageSourceName = utilsString.replaceAll(element.ImageSourceName, "/", "/\n");
+            //newElement.ImageSourceName = utilsString.replaceAll(element.ImageSourceName, "/", "/\n");
+            newElement.ImageSourceName = element.ImageSourceName;
             newElement.ImageSourceId = element.ImageSourceId;
             newElement.DockerizeService = element.DockerizeWorkingDir + '\n' + element.DockerizeService;
             newElement.MySQLversion = "";
@@ -68,13 +73,13 @@ module.exports = {
                 formatter: dbContainerCellColor
             },
             {
-                value: "Status",
-                alias: "Status\n(ExitCode/Health)"
+                value: "Status"//,
+                //alias: "Status\n(ExitCode/Health)"
             },
             {
                 value: "ImageSourceName",
                 formatter: dbContainerCellColor
-            },
+            }/*,
             {
                 value: "DockerizeService",
                 alias: "DockerizePath\nDockerizeService",
@@ -84,7 +89,7 @@ module.exports = {
                 value: "MySQLversion",
                 alias: "MySQLversion\nMySQLpass",
                 formatter: dbContainerCellColor
-            }
+            }*/
         ];
 
         if (hasColumnNumber) {
@@ -104,9 +109,11 @@ module.exports = {
 
         imagesData = imagesData.map(element => {
             const newElement = {};
-            newElement.ImageName = utilsString.replaceAll(element.ImageName, "/", "/\n");
+            //newElement.ImageName = utilsString.replaceAll(element.ImageName, "/", "/\n");
+            newElement.ImageName = element.ImageName;
             newElement.ImageId = element.ImageId;
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
+            newElement.CreatedDate = element.Created;
             newElement.ImageParent = element.ImageParent;
             newElement.MySQLversion = "";
             if (element.MySQLversion && element.MySQLversion != "") {
@@ -147,11 +154,11 @@ module.exports = {
                 value: "ImageParent",
                 formatter: dbImageCellColor
             },
-            {
+            /*{
                 value: "MySQLversion",
                 alias: "MySQLversion\nMySQLpass",
                 formatter: dbImageCellColor
-            },
+            },*/
             {
                 value: "Size",
                 formatter: dbImageCellColor

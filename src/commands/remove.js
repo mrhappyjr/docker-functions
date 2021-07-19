@@ -54,7 +54,9 @@ module.exports = async (p, o) => {
         }
         if (imagesToRemove === undefined) {
             try {
-                imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName", "ImageId");
+                imagesToRemove = listFunc.findNumsInTable(answer, imagesData, "ImageName", "ImageId", "CreatedDate");
+                // sort by date to remove the daughter images first
+                imagesToRemove.sort((a, b) => (a.CreatedDate > b.CreatedDate) ? -1 : ((b.CreatedDate > a.CreatedDate) ? 1 : 0));
                 imagesToRemove = imagesToRemove.map(image => {
                     var newImage = new Object();
                     newImage.ImageName = utilsString.replaceAll(image.ImageName, "\n", "");

@@ -78,6 +78,8 @@ module.exports = {
             } catch (exception) {
                 if (exception.message && exception.message.includes("No such image") && exception.message.includes(iId)) {
                     process.stdout.write(`already removed `);
+                } else {
+                    throw exception;
                 }
             } finally {
                 if (listFunc.imageExists(iId) == true) {

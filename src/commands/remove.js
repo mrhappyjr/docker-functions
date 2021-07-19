@@ -6,6 +6,7 @@ const utilsString = require('../utils/utilsString');
 const utilsLog = require('../utils/utilsLog');
 const listFunc = require('../functions/listFunc');
 const removeFunc = require('../functions/removeFunc');
+const stopFunc = require('../functions/stopFunc');
 
 module.exports = async (p, o) => {
 
@@ -78,19 +79,26 @@ module.exports = async (p, o) => {
             return;
         }
         if (containersToRemove && containersToRemove.length > 0) {
+            console.log("");
             console.log(`Containers to remove:\n  ${containersToRemove.join("\n  ")}`);
 
+            console.log("");
+            const stopContainers = await utilsQuestion.makeQuestion(`Do you want to stop the containers before removing them? `, "yes", true);
+            console.log("");
+            if (stopContainers) {
+                stopFunc.stopContainers(containersToRemove);
+            }
+            console.log("");
             for (const container of containersToRemove) {
-                console.log("");
                 await removeFunc.removeContainer(container);
             }
         }
         if (imagesToRemove && imagesToRemove.length > 0) {
             const imagesToRemoveString = imagesToRemove.map(image => (image.ImageName && image.ImageName != "") ? image.ImageName : image.ImageId).join("\n  ");
+            console.log("");
             console.log(`Images to remove:\n  ${imagesToRemoveString}`);
-
+            console.log("");
             for (const image of imagesToRemove) {
-                console.log("");
                 await removeFunc.removeImage(image);
             }
         }
@@ -98,4 +106,5 @@ module.exports = async (p, o) => {
         console.log(`${exception}`.brightRed);
         console.log(`${exception.stack}`.brightRed);
     }
+    console.log("");
 }

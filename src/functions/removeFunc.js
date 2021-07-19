@@ -39,7 +39,6 @@ module.exports = {
                 } else {
                     console.log(`SUCCESS`.green);
                 }
-                console.log("");
             }
         } else {
             console.log(`  Container ${container.brightRed} will not be removed because its status is ${containerStatus.brightRed}.`);
@@ -87,7 +86,6 @@ module.exports = {
                 } else {
                     console.log(`SUCCESS`.green);
                 }
-                console.log("");
             }
         }
     }

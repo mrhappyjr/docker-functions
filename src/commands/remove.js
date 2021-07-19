@@ -20,12 +20,16 @@ module.exports = async (p, o) => {
 
         console.log('When doing remove, if you have not committed the containers and you have not made copies of the images, you may lose important information.'.brightRed);
         console.log("");
-        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (all), \"ndb\" (NoDataBase) or numbers (column #) separated by \",\" or \"-\" (range).` +
+        var answer = await utilsQuestion.makeQuestion(`Enter \"all\", \"ndb\" (NoDataBase) or numbers (column #) separated by \",\" or \"-\" (range).` +
             `\nWhich containers and images do you want to remove? `);
     
         var containersToRemove;
         var imagesToRemove;
-        if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
+        if (answer && answer.toLowerCase() == "all") {
+            answer = await utilsQuestion.makeQuestion(`Are you sure to delete all containers and images including those from the database (y/n)? `.brightRed, "No", true);
+            if (!answer) {
+                return;
+            }
             answer = `1-${containersData.length + imagesData.length}`;
         } else if (answer && answer.toLowerCase() == "ndb") {
             containersToRemove = listFunc.containersNoDB("ContainerName");
@@ -64,6 +68,12 @@ module.exports = async (p, o) => {
                     throw exception;
                 }
             }
+        }
+        if (existContainers == false && existImages == false) {
+            console.log("")
+            console.log(`No container or image was found with input \"${answer}\"`.brightRed)
+            console.log("")
+            return;
         }
         if (containersToRemove && containersToRemove.length > 0) {
             console.log(`Containers to remove:\n  ${containersToRemove.join("\n  ")}`);

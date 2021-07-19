@@ -75,6 +75,10 @@ module.exports = {
             process.stdout.write(`  Removing image ${iName.green} ... `);
             try {
                 execSync(`docker image rm ${iId}`, {stdio: 'pipe'});
+            } catch (exception) {
+                if (exception.message && exception.message.includes("No such image") && exception.message.includes(iId)) {
+                    process.stdout.write(`already removed `);
+                }
             } finally {
                 if (listFunc.imageExists(iId) == true) {
                     console.log(`ERROR`.brightRed);

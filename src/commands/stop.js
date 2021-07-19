@@ -15,10 +15,10 @@ module.exports = async (p, o) => {
     try {
         var containerData = listFunc.containersTableRender(true);
 
-        var answer = await utilsQuestion.makeQuestion(`Enter \"a\" (select all) or numbers (column #) separated by \",\" or \"-\" (range).` +
+        var answer = await utilsQuestion.makeQuestion(`Enter \"all\" or numbers (column #) separated by \",\" or \"-\" (range).` +
             `\nWhich containers do you want to stop? `);
     
-        if (answer && answer.toLowerCase() == "a" || answer.toLowerCase() == "all") {
+        if (answer && answer.toLowerCase() == "all") {
             answer = `1-${containerData.length}`;
         }
         var containersToStop = listFunc.findNumsInTable(answer, containerData, "ContainerName");

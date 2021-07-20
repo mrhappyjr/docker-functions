@@ -4,6 +4,7 @@ const execSync = require('child_process').execSync;
 const utilsQuestion = require('../utils/utilsQuestion');
 const utilsString = require('../utils/utilsString');
 const listFunc = require('./listFunc');
+const stopFunc = require('./stopFunc');
 const compressing = require('compressing');
 const readline = require('readline');
 const fs = require('fs')
@@ -26,7 +27,16 @@ module.exports = {
         if (listFunc.imageExists(imageId)) {
             var overwrite = await utilsQuestion.makeQuestion(
                 `Image ${imageId.brightRed} already exists. Do you want to ${"overwrite".brightRed} it (y/n)? `, "", true);
-            if (!overwrite) {
+            if (overwrite) {
+                // check if image has associated containers
+                var imageContainers = listFunc.imageContainers(imageId, "ContainerName");
+                if (imageContainers && imageContainers.length > 0) {
+                    for (const container of imageContainers) {
+                        console.log("");
+                        await stopFunc.stopContainer(container);
+                    }
+                }
+            } else {
                 console.log(`END. File ${pathAndFile} has not been loaded.`);
                 return;
             }

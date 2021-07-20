@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.7.3",
+  "version": "0.8.1",
   "description": "Docker functions",
   "main": "src/commands/df-list.js",
   "scripts": {
@@ -12,11 +12,14 @@
     "df-list": "./src/commands/df-list.js",
     "df-stop": "./src/commands/df-stop.js",
     "df-commit": "./src/commands/df-commit.js",
-    "df-remove": "./src/commands/df-remove.js"
+    "df-remove": "./src/commands/df-remove.js",
+    "df-save": "./src/commands/df-save.js",
+    "df-load": "./src/commands/df-load.js"
   },
   "dependencies": {
     "colors": "^1.4.0",
     "commander": "^6.2.0",
+    "compressing": "^1.5.1",
     "tty-table": "^4.1.3"
   }
 }

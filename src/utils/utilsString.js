@@ -23,6 +23,15 @@ module.exports = {
       }
     });
     return resultArray;
+  },
+
+  getPath: function (txt) {
+    var txtArray = txt.split('/');
+    var path = "";
+    for (let i = 0; i < (txtArray.length - 1); i++) {
+      path += txtArray[i] + '/';
+    }
+    return path;
   }
 
 };

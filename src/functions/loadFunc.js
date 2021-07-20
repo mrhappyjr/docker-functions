@@ -12,7 +12,8 @@ const fs = require('fs')
 module.exports = {
 
     loadImage: async function (path, file) {
-        var pathAndFile = path + "/" + file;
+        path = path.endsWith('/') ? path : (path + '/');
+        var pathAndFile = path + file;
         var loadFile = await utilsQuestion.makeQuestion(
             `Do you want to load file ${pathAndFile.green} (y/n)? `, "", true);
         if (!loadFile) {
@@ -51,20 +52,20 @@ module.exports = {
 
             // TODO Save the raw file with the image name instead of the id
             process.stdout.write(`Loading image ${imageId.green} ...`);
-            execSync(`docker load -i "${path + "/" + imageId}"`, {stdio: 'pipe'});
+            execSync(`docker load -i "${path + imageId}"`, {stdio: 'pipe'});
             readline.moveCursor(process.stdout, -3, 0);
             console.log("   ");
             console.log("");            
 
             process.stdout.write(`Deleting temporary file ...`);
-            fs.unlinkSync(path + "/" + imageId);
+            fs.unlinkSync(path + imageId);
         } finally {
             readline.moveCursor(process.stdout, -3, 0);
             console.log("   ");
             console.log("");
-            if (fs.existsSync(path + "/" + imageId)) {
+            if (fs.existsSync(path + imageId)) {
                 process.stdout.write(`Deleting temporary file ...`);
-                fs.unlinkSync(path + "/" + imageId);
+                fs.unlinkSync(path + imageId);
                 readline.moveCursor(process.stdout, -3, 0);
                 console.log("   ");
                 console.log("");

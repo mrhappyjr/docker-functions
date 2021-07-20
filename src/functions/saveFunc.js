@@ -3,6 +3,7 @@ require('colors');
 const execSync = require('child_process').execSync;
 const utilsQuestion = require('../utils/utilsQuestion');
 const utilsString = require('../utils/utilsString');
+const config = require('../config/config');
 const compressing = require('compressing');
 const readline = require('readline');
 const fs = require('fs')
@@ -11,7 +12,8 @@ module.exports = {
 
     saveImage: async function (image) {
         console.log(`SAVE image: ` + image.ImageName.green)
-        var savePath = process.env.DOCKER_FUNCTIONS_SAVE_PATH || utilsString.replaceAll(process.cwd(), '\\', '/');
+        var savePath = (config.getProperty("SAVE_PATH") && fs.existsSync(config.getProperty("SAVE_PATH")))? config.getProperty("SAVE_PATH") : process.cwd();
+        savePath = utilsString.replaceAll(savePath, '\\', '/');
         savePath = savePath.endsWith('/') ? savePath : (savePath + '/');
         const fileExtension = '.zip';
         var fileName = image.ImageName.split('/')[image.ImageName.split('/').length - 1].replace(':', '_');
@@ -38,9 +40,12 @@ module.exports = {
         var answer = await utilsQuestion.makeQuestion(
             `Do you want to save image ${image.ImageName.green} in file ${fileNameToSave.green} (y/n)? `, "", true);
 
-        savePath = utilsString.getPath(fileNameToSave);
-        process.env.DOCKER_FUNCTIONS_SAVE_PATH = savePath;
         if (answer) {
+            savePath = utilsString.getPath(fileNameToSave);
+            if (!fs.existsSync(savePath)) {
+                fs.mkdirSync(savePath);
+            }
+            config.setProperty("SAVE_PATH", savePath);
             try {
                 process.stdout.write(`Saving image ${image.ImageName.green} in temporary file ...`);
                 execSync(`docker save "${image.ImageName}" -o "${savePath + image.ImageId}"`, {stdio: 'pipe'});

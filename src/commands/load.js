@@ -5,6 +5,7 @@ const utilsQuestion = require('../utils/utilsQuestion');
 const utilsNumber = require('../utils/utilsNumber');
 const utilsString = require('../utils/utilsString');
 const loadFunc = require('../functions/loadFunc');
+const config = require('../config/config');
 const fs = require('fs');
 
 module.exports = async (p, o) => {
@@ -12,7 +13,8 @@ module.exports = async (p, o) => {
     utilsLog.logHeader("DOCKER FUNCTION: LOAD", true, true, 100);
     const fileExtension = '.zip';
     var filesToLoad;
-    var path = utilsString.replaceAll(process.cwd(), '\\', '/');
+    var path = (config.getProperty("SAVE_PATH") && fs.existsSync(config.getProperty("SAVE_PATH")))? config.getProperty("SAVE_PATH") : process.cwd();
+    path = utilsString.replaceAll(path, '\\', '/');
     var isChangeDir = false;
     try {
         do {
@@ -33,9 +35,15 @@ module.exports = async (p, o) => {
                 'Type \"cp\" to change directory or select the number of files to load (enter the numbers separated by \",\" or \"-\" for range): ');
             if (answer && answer.toLowerCase() == "cp") {
                 // change directory
-                var changeDir = await utilsQuestion.makeQuestion(
-                    'In which directory do you want to look for compressed image files? ');
-                path = utilsString.replaceAll(changeDir, '\\', '/');;
+                do {
+                    var changeDir = await utilsQuestion.makeQuestion(
+                        'In which directory do you want to look for compressed image files? ');
+                    path = utilsString.replaceAll(changeDir, '\\', '/');
+                    if (!fs.existsSync(path)) {
+                        console.log(`Directory \"${path}\" does not exist`.brightRed);
+                    }
+                } while (!fs.existsSync(path));
+                config.setProperty("SAVE_PATH", path);
                 isChangeDir = true;
             } else {
                 var separateNumbers = utilsNumber.separateNumbers(answer);

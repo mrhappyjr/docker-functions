@@ -12,11 +12,12 @@ module.exports = {
     saveImage: async function (image) {
         console.log(`SAVE image: ` + image.ImageName.green)
         var savePath = process.env.DOCKER_FUNCTIONS_SAVE_PATH || utilsString.replaceAll(process.cwd(), '\\', '/');
+        savePath = savePath.endsWith('/') ? savePath : (savePath + '/');
         const fileExtension = '.zip';
         var fileName = image.ImageName.split('/')[image.ImageName.split('/').length - 1].replace(':', '_');
         var fileNameToSave = await utilsQuestion.makeQuestion(
             `Write the ${"absolute path and the name of the file".green} where you want to ${"save".green} a compressed copy of image ${image.ImageName.green}:\n  `, 
-            savePath + '/' + fileName + fileExtension);
+            savePath + fileName + fileExtension);
         var proceed = false;
         // check if there is an file with the same name
         do {
@@ -44,26 +45,26 @@ module.exports = {
                 process.stdout.write(`Saving image ${image.ImageName.green} in temporary file ...`);
                 execSync(`docker save "${image.ImageName}" -o "${savePath + image.ImageId}"`, {stdio: 'pipe'});
                 readline.moveCursor(process.stdout, -3, 0);
-                console.log("");
+                console.log("   ");
                 console.log("");
 
                 process.stdout.write(`Compressing image ${image.ImageName.green} in file ${fileNameToSave.green} ...`);
                 await compressing.zip.compressFile(savePath + image.ImageId, fileNameToSave);
                 readline.moveCursor(process.stdout, -3, 0);
-                console.log("");
+                console.log("   ");
                 console.log("");
 
                 process.stdout.write(`Deleting temporary file ...`);
                 fs.unlinkSync(savePath + image.ImageId);
             } finally {
                 readline.moveCursor(process.stdout, -3, 0);
-                console.log("");
+                console.log("   ");
                 console.log("");
                 if (fs.existsSync(savePath + image.ImageId)) {
                     process.stdout.write(`Deleting temporary file ...`);
                     fs.unlinkSync(savePath + image.ImageId);
                     readline.moveCursor(process.stdout, -3, 0);
-                    console.log("");
+                    console.log("   ");
                     console.log("");
                 }
             }

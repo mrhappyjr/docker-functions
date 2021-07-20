@@ -36,27 +36,27 @@ module.exports = {
             process.stdout.write(`Unzipping the file ${pathAndFile.green} ...`);
             await compressing.zip.uncompress(pathAndFile, path);
             readline.moveCursor(process.stdout, -3, 0);
-            console.log("");
+            console.log("   ");
             console.log("");
 
             // TODO Save the raw file with the image name instead of the id
             process.stdout.write(`Loading image ${imageId.green} ...`);
             execSync(`docker load -i "${path + "/" + imageId}"`, {stdio: 'pipe'});
             readline.moveCursor(process.stdout, -3, 0);
-            console.log("");
+            console.log("   ");
             console.log("");            
 
             process.stdout.write(`Deleting temporary file ...`);
             fs.unlinkSync(path + "/" + imageId);
         } finally {
             readline.moveCursor(process.stdout, -3, 0);
-            console.log("");
+            console.log("   ");
             console.log("");
             if (fs.existsSync(path + "/" + imageId)) {
                 process.stdout.write(`Deleting temporary file ...`);
                 fs.unlinkSync(path + "/" + imageId);
                 readline.moveCursor(process.stdout, -3, 0);
-                console.log("");
+                console.log("   ");
                 console.log("");
             }
         }

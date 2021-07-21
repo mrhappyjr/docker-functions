@@ -1,8 +1,8 @@
 {
   "name": "docker-functions",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Docker functions",
-  "main": "src/commands/df-list.js",
+  "main": "src/commands/docker-functions.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -103,8 +103,12 @@ module.exports = async (p, o) => {
             }
         }
     } catch (exception) {
-        console.log(`${exception}`.brightRed);
-        console.log(`${exception.stack}`.brightRed);
+        if (exception instanceof customErrors.ExitException) {
+            console.log(exception.message)
+        } else {
+            console.log(`${exception}`.brightRed);
+            console.log(`${exception.stack}`.brightRed);
+        }
     }
     console.log("");
 }

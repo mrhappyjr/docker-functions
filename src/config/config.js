@@ -1,4 +1,5 @@
 const fs = require('fs');
+require('colors');
 const path = require('path');
 const utilsString = require('../utils/utilsString');
 
@@ -13,9 +14,7 @@ module.exports = {
             let configData = getConfigData();
             result = configData[property];
         } catch (exception) {
-            console.log(exception)
-            console.log(exception.message)
-            console.log(exception.stack)
+            console.log(exception.brightred)
         }
 
         return result;
@@ -30,9 +29,7 @@ module.exports = {
             fs.writeFileSync(configFile, configDataString);
             result = true;
         } catch (exception) {
-            console.log(exception)
-            console.log(exception.message)
-            console.log(exception.stack)
+            console.log(exception.brightred)
         }
 
         return result;

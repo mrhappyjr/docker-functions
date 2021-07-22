@@ -4,6 +4,7 @@ const utilsQuestion = require('../utils/utilsQuestion');
 const utilsLog = require('../utils/utilsLog');
 const listFunc = require('../functions/listFunc');
 const stopFunc = require('../functions/stopFunc');
+const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
 
@@ -27,6 +28,10 @@ module.exports = async (p, o) => {
         //containersToStop.forEach(container => stopFunc.stopContainer(container));
         stopFunc.stopContainers(containersToStop);
     } catch (exception) {
-        console.log(`${exception}`.brightRed);
+        if (exception instanceof customErrors.ExitException) {
+            console.log(exception.message)
+        } else {
+            console.log(`${exception}`.brightRed);
+        }
     }
 }

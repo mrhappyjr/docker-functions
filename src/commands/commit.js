@@ -4,6 +4,7 @@ const utilsLog = require('../utils/utilsLog');
 const listFunc = require('../functions/listFunc');
 const utilsQuestion = require('../utils/utilsQuestion');
 const commitFunc = require('../functions/commitFunc');
+const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
 
@@ -25,7 +26,11 @@ module.exports = async (p, o) => {
             await commitFunc.commitContainer(containerAndImage);
         }
     } catch (exception) {
-        console.log(`${exception}`.brightRed);
+        if (exception instanceof customErrors.ExitException) {
+            console.log(exception.message)
+        } else {
+            console.log(`${exception}`.brightRed);
+        }
     }
 
 }

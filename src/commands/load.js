@@ -7,6 +7,7 @@ const utilsString = require('../utils/utilsString');
 const loadFunc = require('../functions/loadFunc');
 const config = require('../config/config');
 const fs = require('fs');
+const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
 
@@ -66,7 +67,11 @@ module.exports = async (p, o) => {
             await loadFunc.loadImage(path, file);
         }
     } catch (exception) {
-        console.log(`${exception}`.brightRed);
+        if (exception instanceof customErrors.ExitException) {
+            console.log(exception.message)
+        } else {
+            console.log(`${exception}`.brightRed);
+        }
     }
 
 }

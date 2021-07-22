@@ -1,6 +1,7 @@
 require('colors');
 const readline = require('readline');
 const utilsString = require('./utilsString');
+const customErrors = require('../errors/customErrors');
 
 const iniStyle = `\x1b[44m`; // bgBlue
 const endStyle = `\x1b[0m`;  // reset
@@ -40,8 +41,11 @@ module.exports = {
     }
     await question(txt, defaultAnswer)
     rl.close()
+    if (answer && (answer.toLowerCase() == "ex" || answer.toLowerCase() == "exit")) {
+      throw new customErrors.ExitException(`EXIT TO MAIN MENU`);
+    }
     if (yes_no && yes_no == true) {
-      if (answer && answer.toLowerCase() == "y" || answer.toLowerCase() == "yes") {
+      if (answer && (answer.toLowerCase() == "y" || answer.toLowerCase() == "yes")) {
         answer = true;
       } else {
         answer = false;

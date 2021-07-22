@@ -17,7 +17,7 @@ const app = program
 Help:` + listFunctions);
   });
 
-const functionsArray = ["df-list", "df-stop", "df-commit", "df-remove", "df-save", "df-load"];
+const functionsArray = ["df-list", "df-stop", "df-commit", "df-remove", "df-save", "df-load", "df-clean"];
 const listFunctions = `  List of functions in the docker-functions package:\n    ` + functionsArray.join("\n    ");
 
 program.parse(process.argv);
@@ -39,6 +39,7 @@ async function menu() {
       console.log(` ${"4#".gray} ${"[re]".brightCyan} ${functionsArray[3].substring(3).green}`);
       console.log(` ${"5#".gray} ${"[sa]".brightCyan} ${functionsArray[4].substring(3).green}`);
       console.log(` ${"6#".gray} ${"[lo]".brightCyan} ${functionsArray[5].substring(3).green}`);
+      console.log(` ${"7#".gray} ${"[cl]".brightCyan} ${functionsArray[6].substring(3).green}`);
       console.log("");
       console.log(` ${"0#".gray} ${"[ex]".brightCyan} ${"EXIT".green}`);
       console.log("");
@@ -58,6 +59,8 @@ async function menu() {
           await require("./save")(package, program.opts());
       } else if (answer.toLowerCase() == "6" || answer.toLowerCase().startsWith("lo")) {
           await require("./load")(package, program.opts());
+      } else if (answer.toLowerCase() == "7" || answer.toLowerCase().startsWith("cl")) {
+          await require("./clean")(package, program.opts());
       } else if (answer.toLowerCase() == "0" || answer.toLowerCase().startsWith("ex")) {
           exit = true;
       } else {

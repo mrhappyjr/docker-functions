@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Docker functions",
   "main": "src/commands/docker-functions.js",
   "scripts": {
@@ -15,7 +15,8 @@
     "df-remove": "./src/commands/df-remove.js",
     "df-save": "./src/commands/df-save.js",
     "df-load": "./src/commands/df-load.js",
-    "docker-functions": "./src/commands/docker-functions.js"
+    "docker-functions": "./src/commands/docker-functions.js",
+    "df-clean": "./src/commands/df-clean.js"
   },
   "dependencies": {
     "colors": "^1.4.0",

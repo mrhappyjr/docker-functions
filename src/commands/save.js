@@ -25,6 +25,7 @@ module.exports = async (p, o) => {
         }
     } catch (exception) {
         if (exception instanceof customErrors.ExitException) {
+            console.log()
             console.log(exception.message)
         } else {
             console.log(`${exception}`.brightRed);

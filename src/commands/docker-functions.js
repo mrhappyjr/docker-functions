@@ -33,48 +33,40 @@ async function menu() {
       }
       utilsLog.logHeader("MENU", true, true, 17);
       var exit = false;
-      console.log("  [li] " + functionsArray[0]);
-      console.log("  [st] " + functionsArray[1]);
-      console.log("  [co] " + functionsArray[2]);
-      console.log("  [re] " + functionsArray[3]);
-      console.log("  [sa] " + functionsArray[4]);
-      console.log("  [lo] " + functionsArray[5]);
+      console.log(` ${"1#".gray} ${"[li]".brightCyan} ${functionsArray[0].substring(3).green}`);
+      console.log(` ${"2#".gray} ${"[st]".brightCyan} ${functionsArray[1].substring(3).green}`);
+      console.log(` ${"3#".gray} ${"[co]".brightCyan} ${functionsArray[2].substring(3).green}`);
+      console.log(` ${"4#".gray} ${"[re]".brightCyan} ${functionsArray[3].substring(3).green}`);
+      console.log(` ${"5#".gray} ${"[sa]".brightCyan} ${functionsArray[4].substring(3).green}`);
+      console.log(` ${"6#".gray} ${"[lo]".brightCyan} ${functionsArray[5].substring(3).green}`);
       console.log("");
-      console.log("  [ex] EXIT");
+      console.log(` ${"0#".gray} ${"[ex]".brightCyan} ${"EXIT".green}`);
       console.log("");
 
-      var answer = await utilsQuestion.makeQuestion(`Enter [alias] of the function to use: `);
+      var answer = await utilsQuestion.makeQuestion(`Enter ${"number #".gray}, ${"[alias]".brightCyan} or ${"name".green} of the function to use: `);
       lastFunction = answer;
 
-      switch (answer.toLowerCase()) {
-          case "li":
-            await require("./list")(package, program.opts());
-            break;
-          case "st":
-            await require("./stop")(package, program.opts());
-            break;
-          case "co":
-            await require("./commit")(package, program.opts());
-            break;
-          case "re":
-            await require("./remove")(package, program.opts());
-            break;
-          case "sa":
-            await require("./save")(package, program.opts());
-            break;
-          case "lo":
-            await require("./load")(package, program.opts());
-            break;
-          case "ex":
-            exit = true;
-            break;
-          default:
-            console.log(`Function \"${answer}\" not found`.brightRed);
+      if (answer.toLowerCase() == "1" || answer.toLowerCase().startsWith("li")) {
+          await require("./list")(package, program.opts());
+      } else if (answer.toLowerCase() == "2" || answer.toLowerCase().startsWith("st")) {
+          await require("./stop")(package, program.opts());
+      } else if (answer.toLowerCase() == "3" || answer.toLowerCase().startsWith("co")) {
+          await require("./commit")(package, program.opts());
+      } else if (answer.toLowerCase() == "4" || answer.toLowerCase().startsWith("re")) {
+          await require("./remove")(package, program.opts());
+      } else if (answer.toLowerCase() == "5" || answer.toLowerCase().startsWith("sa")) {
+          await require("./save")(package, program.opts());
+      } else if (answer.toLowerCase() == "6" || answer.toLowerCase().startsWith("lo")) {
+          await require("./load")(package, program.opts());
+      } else if (answer.toLowerCase() == "0" || answer.toLowerCase().startsWith("ex")) {
+          exit = true;
+      } else {
+          console.log(`Function \"${answer}\" not found`.brightRed);
       }
     } while (!exit);
   } catch (exception) {
     if (exception instanceof customErrors.ExitException) {
-      console.log("\nEXIT docker-functions\n".brightRed)
+      console.log("\nEXIT docker-functions\n".green)
     } else {
       console.log(`${exception}`.brightRed);
     }

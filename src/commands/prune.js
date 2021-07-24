@@ -9,7 +9,7 @@ const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
 
-    utilsLog.logHeader("DOCKER FUNCTION: CLEAN", true, true, 100);
+    utilsLog.logHeader("DOCKER FUNCTION: PRUNE", true, true, 100);
 
     try {
         console.log("DISK USAGE".green + " (command \"docker system df\")")
@@ -18,17 +18,17 @@ module.exports = async (p, o) => {
         console.log(result.toString())
 
         console.log("ATTENTION! By pruning you can remove containers, images, and volumes that you don't want to remove.".brightRed);
-        var answerClean = await utilsQuestion.makeQuestion(`Write the initials of the entities you want to prune:\n` +
+        var answerPrune = await utilsQuestion.makeQuestion(`Write the initials of the entities you want to prune:\n` +
             `  ${"\"c\"".green} (remove all stopped containers)\n` + 
             `  ${"\"i\"".green} (remove all images without at least one container associated to them)\n` + 
             `  ${"\"v\"".green} (remove all local volumes not used by at least one container)\n` + 
             `  ${"\"a\"".green} (remove containers, images and volumes)\n` + 
             `in any order but together. For example \"cv\", \"vic\", etc: `);
 
-        if (answerClean && (answerClean.toLowerCase().includes("c") || 
-                            answerClean.toLowerCase().includes("i") || 
-                            answerClean.toLowerCase().includes("v") || 
-                            answerClean.toLowerCase().includes("a"))) {
+        if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
+                            answerPrune.toLowerCase().includes("i") || 
+                            answerPrune.toLowerCase().includes("v") || 
+                            answerPrune.toLowerCase().includes("a"))) {
             console.log("")
             var pruneDB = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} When doing the pruning,\n` + 
                 `do you want to include the containers and images database among which they will be removed? (y/n)? `, "No", true);
@@ -38,8 +38,8 @@ module.exports = async (p, o) => {
             const noDB = pruneDB ? " (INCLUDING database ones)" : " (EXCEPT database ones)";
             const filterDB = pruneDB ? "" : " --filter \"label!=com.docker.compose.service=gr-db\"";
         
-            if (answerClean && (answerClean.toLowerCase().includes("c") || 
-                                answerClean.toLowerCase().includes("a"))) {
+            if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
+                                answerPrune.toLowerCase().includes("a"))) {
                 
                 var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all stopped ${"containers".green}${noDB}.\n` + 
                 `Are you sure you want to continue (y/n)? `, "", true);
@@ -49,8 +49,8 @@ module.exports = async (p, o) => {
                     console.log("")
                 }
             }
-            if (answerClean && (answerClean.toLowerCase().includes("i") || 
-                                answerClean.toLowerCase().includes("a"))) {
+            if (answerPrune && (answerPrune.toLowerCase().includes("i") || 
+                                answerPrune.toLowerCase().includes("a"))) {
                 var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all ${"images".green}${noDB} without at least one container associated to them.\n` + 
                 `Are you sure you want to continue (y/n)? `, "", true);
                 if (answer) {
@@ -59,8 +59,8 @@ module.exports = async (p, o) => {
                     console.log("")
                 }
             }
-            if (answerClean && (answerClean.toLowerCase().includes("v") || 
-                                answerClean.toLowerCase().includes("a"))) {
+            if (answerPrune && (answerPrune.toLowerCase().includes("v") || 
+                                answerPrune.toLowerCase().includes("a"))) {
                 var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all ${"local volumes".green}${noDB} not used by at least one container.\n` + 
                 `Are you sure you want to continue (y/n)? `, "", true);
                 if (answer) {

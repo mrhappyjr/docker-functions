@@ -16,7 +16,7 @@
     "df-save": "./src/commands/df-save.js",
     "df-load": "./src/commands/df-load.js",
     "docker-functions": "./src/commands/docker-functions.js",
-    "df-clean": "./src/commands/df-clean.js"
+    "df-prune": "./src/commands/df-prune.js"
   },
   "dependencies": {
     "colors": "^1.4.0",

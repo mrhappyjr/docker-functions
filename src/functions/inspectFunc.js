@@ -114,7 +114,7 @@ function inspect(ids) {
     } catch (exception) {
         readline.moveCursor(process.stdout, -15, 0);
         readline.clearScreenDown(process.stdout);
-        var stdoutExc = utilsString.replaceEOL(exception.stdout.toString(), "");
+        var stdoutExc = utilsString.replaceEOL(exception.stdout.toString());
         if (exception.stdout && stdoutExc != '[]') {
             console.log(`${exception.stderr}`.brightRed);
             console.log(`${exception.stdout}`.green)

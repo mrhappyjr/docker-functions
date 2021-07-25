@@ -5,6 +5,9 @@ module.exports = {
   },
 
   replaceEOL: function (txt, replace) {
+    if (!replace) {
+      replace = "";
+    }
     var result = this.replaceAll(txt, '\n', replace);
     result = this.replaceAll(result, '\r', replace);
     return result;

@@ -62,15 +62,15 @@ module.exports = {
         const header = [
             {
                 value: "ContainerName",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "ContainerId",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "Created",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "Status"//,
@@ -78,24 +78,24 @@ module.exports = {
             },
             {
                 value: "ImageSourceName",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             }/*,
             {
                 value: "DockerizeService",
                 alias: "DockerizePath\nDockerizeService",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "MySQLversion",
                 alias: "MySQLversion\nMySQLpass",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             }*/
         ];
 
         if (hasColumnNumber) {
             var columnNumbers =  {
                 value: "#",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             };
             header.unshift(columnNumbers);
         }
@@ -143,35 +143,35 @@ module.exports = {
         const header = [
             {
                 value: "ImageName",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "ImageId",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "Created",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             {
                 value: "ImageParent",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },
             /*{
                 value: "MySQLversion",
                 alias: "MySQLversion\nMySQLpass",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             },*/
             {
                 value: "Size",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             }
         ];
 
         if (hasColumnNumber) {
             var columnNumbers =  {
                 value: "#",
-                formatter: dbContainerCellColor
+                formatter: dbCellColor
             };
             header.unshift(columnNumbers);
         }
@@ -306,20 +306,10 @@ function readColumns(dataArray, ...columnsReturn) {
     return dataArray;
 }
 
-function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
+function dbCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
     const row = inputData[rowIndex] // get the whole row
     
     if (row.DockerizeService && row.DockerizeService.endsWith('\ngr-db')) {
-        return this.style(cellValue, "green");
-    } else {
-        return this.style(cellValue);
-    }
-}
-
-function dbImageCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
-    const row = inputData[rowIndex] // get the whole row
-    
-    if (row.MySQLversion && row.MySQLversion != "") {
         return this.style(cellValue, "green");
     } else {
         return this.style(cellValue);

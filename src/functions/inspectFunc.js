@@ -68,6 +68,19 @@ module.exports = {
                 newElement.ImageId = element.Id.substring(7, 19);
                 newElement.Created = element.Created;
                 newElement.ImageParent = element.Parent.substring(7, 19);
+                if (element.Config && element.Config.Labels && element.Config.Labels != null) {
+                    if (element.Config.Labels['com.docker.compose.project.working_dir']) {
+                        newElement.DockerizeWorkingDir = utilsString.replaceAll(element.Config.Labels['com.docker.compose.project.working_dir'], '\\', '/');
+                    } else {
+                        newElement.DockerizeWorkingDir = undefined;
+                    }
+                    newElement.DockerizeConfigFile = element.Config.Labels['com.docker.compose.project.config_files'] ? element.Config.Labels['com.docker.compose.project.config_files'] : undefined;
+                    newElement.DockerizeService = element.Config.Labels['com.docker.compose.service'] ? element.Config.Labels['com.docker.compose.service'] : undefined;
+                } else {
+                    newElement.DockerizeWorkingDir = undefined;
+                    newElement.DockerizeConfigFile = undefined;
+                    newElement.DockerizeService = undefined;
+                }
                 newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
                 newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
                 newElement.Size = element.Size;

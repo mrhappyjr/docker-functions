@@ -115,6 +115,9 @@ module.exports = {
             newElement.Created = utilsDate.dateAgo(element.Created) + ' ago';
             newElement.CreatedDate = element.Created;
             newElement.ImageParent = element.ImageParent;
+            if (element.DockerizeWorkingDir && element.DockerizeService) {
+                newElement.DockerizeService = element.DockerizeWorkingDir + '\n' + element.DockerizeService;
+            }
             newElement.MySQLversion = "";
             if (element.MySQLversion && element.MySQLversion != "") {
                 newElement.MySQLversion = element.MySQLversion
@@ -140,35 +143,35 @@ module.exports = {
         const header = [
             {
                 value: "ImageName",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "ImageId",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "Created",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             },
             {
                 value: "ImageParent",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             },
             /*{
                 value: "MySQLversion",
                 alias: "MySQLversion\nMySQLpass",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             },*/
             {
                 value: "Size",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             }
         ];
 
         if (hasColumnNumber) {
             var columnNumbers =  {
                 value: "#",
-                formatter: dbImageCellColor
+                formatter: dbContainerCellColor
             };
             header.unshift(columnNumbers);
         }
@@ -306,7 +309,7 @@ function readColumns(dataArray, ...columnsReturn) {
 function dbContainerCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
     const row = inputData[rowIndex] // get the whole row
     
-    if (row.DockerizeService.endsWith('\ngr-db')) {
+    if (row.DockerizeService && row.DockerizeService.endsWith('\ngr-db')) {
         return this.style(cellValue, "green");
     } else {
         return this.style(cellValue);

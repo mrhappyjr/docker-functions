@@ -3,8 +3,9 @@ require('colors');
 const execSync = require('child_process').execSync;
 const utilsQuestion = require('../utils/utilsQuestion');
 const utilsLog = require('../utils/utilsLog');
-const listFunc = require('../functions/listFunc');
+const inspectFunc = require('../functions/inspectFunc');
 const stopFunc = require('../functions/stopFunc');
+const utilsArray = require('../utils/utilsArray');
 const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
@@ -17,57 +18,88 @@ module.exports = async (p, o) => {
         var result = execSync(`docker system df`, {stdio: 'pipe'});
         console.log(result.toString())
 
-        console.log("ATTENTION! By pruning you can remove containers, images, and volumes that you don't want to remove.".brightRed);
-        var answerPrune = await utilsQuestion.makeQuestion(`Write the initials of the entities you want to prune:\n` +
+        var answerPrune = await utilsQuestion.makeQuestion(`Write the initials of what you want to prune:\n` +
             `  ${"\"c\"".green} (remove all stopped containers)\n` + 
             `  ${"\"i\"".green} (remove all images without at least one container associated to them)\n` + 
             `  ${"\"v\"".green} (remove all local volumes not used by at least one container)\n` + 
             `  ${"\"a\"".green} (remove containers, images and volumes)\n` + 
-            `in any order but together. For example \"cv\", \"vic\", etc: `);
-
+            `  ${"\"d\"".brightRed} (database entities will also be included in the pruning)\n` + 
+            `in any order but together. For example \"cv\", \"vic\", etc.\n` +
+            `Before pruning, the entities to prune will be seen: `);
+        
         if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
                             answerPrune.toLowerCase().includes("i") || 
                             answerPrune.toLowerCase().includes("v") || 
                             answerPrune.toLowerCase().includes("a"))) {
-            console.log("")
-            var pruneDB = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} When doing the pruning,\n` + 
-                `do you want to include the containers and images database among which they will be removed? (y/n)? `, "No", true);
 
-            console.log("")
+            var pruneDB = answerPrune.toLowerCase().includes("d");
 
-            const noDB = pruneDB ? " (INCLUDING database ones)" : " (EXCEPT database ones)";
-            const filterDB = pruneDB ? "" : " --filter \"label!=com.docker.compose.service=gr-db\"";
-        
+            var allContainersData;
             if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                
-                var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all stopped ${"containers".green}${noDB}.\n` + 
-                `Are you sure you want to continue (y/n)? `, "", true);
-                if (answer) {
-                    console.log(execCommand(`docker container prune -f${filterDB}`));
-                } else {
-                    console.log("")
+                console.log()
+                console.log(`Containers to prune (`.green + `database`.brightRed + `, `.green + 'running will stop'.brightCyan + '):'.green);
+                allContainersData = inspectFunc.getAllContainersData();
+                if (!pruneDB) {
+                    allContainersData = allContainersData.filter(container => container.DockerizeService != "gr-db");
                 }
+                utilsArray.orderByColumn(allContainersData, "ContainerName");
+                allContainersData.forEach(container => {
+                    if (container.DockerizeService && container.DockerizeService.endsWith('gr-db')) {
+                        console.log(`  ${container.ContainerName}`.brightRed);
+                    } else if (container.Status && container.Status != "exited") {
+                        console.log(`  ${container.ContainerName}`.brightCyan);
+                    } else {
+                        console.log(`  ${container.ContainerName}`);
+                    }
+                });
             }
             if (answerPrune && (answerPrune.toLowerCase().includes("i") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all ${"images".green}${noDB} without at least one container associated to them.\n` + 
-                `Are you sure you want to continue (y/n)? `, "", true);
-                if (answer) {
-                    console.log(execCommand(`docker image prune -a -f${filterDB}`));
-                } else {
-                    console.log("")
+                console.log()
+                console.log("Images to prune (".green + "database".brightRed + "):".green)
+                var allImagesData = inspectFunc.getAllImagesData();
+                if (!pruneDB) {
+                    allImagesData = allImagesData.filter(image => image.DockerizeService != "gr-db");
                 }
+                utilsArray.orderByColumn(allImagesData, "ImageName", false, "ImageId");
+                allImagesData.forEach(image => {
+                    if (image.DockerizeService && image.DockerizeService.endsWith('gr-db')) {
+                        console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`.brightRed);
+                    } else {
+                        console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`);
+                    }
+                });
             }
             if (answerPrune && (answerPrune.toLowerCase().includes("v") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                var answer = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} This will remove all ${"local volumes".green}${noDB} not used by at least one container.\n` + 
-                `Are you sure you want to continue (y/n)? `, "", true);
-                if (answer) {
-                    console.log(execCommand(`docker volume prune -f`));
-                } else {
-                    console.log("")
-                }
+                console.log()
+                console.log(`All volumes not used by at least one container will be pruned.`.green)
+            }
+
+            console.log()
+            var confirm = await utilsQuestion.makeQuestion(`${"WARNING!".brightRed} You want to prune all the items listed above (y/n)? `, "", true);
+
+            if (!confirm) {
+                return;
+            }
+
+            // stop container
+            stopFunc.stopContainers(allContainersData.map(container => container.ContainerName));
+
+            const filterDB = pruneDB ? "" : " --filter \"label!=com.docker.compose.service=gr-db\"";
+
+            if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
+                                answerPrune.toLowerCase().includes("a"))) {
+                console.log(execCommand(`docker container prune -f${filterDB}`));
+            }
+            if (answerPrune && (answerPrune.toLowerCase().includes("i") || 
+                                answerPrune.toLowerCase().includes("a"))) {
+                console.log(execCommand(`docker image prune -a -f${filterDB}`));
+            }
+            if (answerPrune && (answerPrune.toLowerCase().includes("v") || 
+                                answerPrune.toLowerCase().includes("a"))) {
+                console.log(execCommand(`docker volume prune -f`));
             }
         }
     } catch (exception) {

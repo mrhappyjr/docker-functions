@@ -50,7 +50,7 @@ module.exports = {
             console.log("   ");
             console.log("");
 
-            // TODO Save the raw file with the image name instead of the id
+            // TODO Save the raw file with the image name instead of the id. O ambas cosas.
             process.stdout.write(`Loading image ${imageId.green} ...`);
             execSync(`docker load -i "${path + imageId}"`, {stdio: 'pipe'});
             readline.moveCursor(process.stdout, -3, 0);

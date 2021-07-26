@@ -10,7 +10,7 @@ const customErrors = require('../errors/customErrors');
 const app = program
   .name(command)
   .version(package.version)
-  .description("Print the names of the functions available in the docker-functions package")
+  .description("Menu with all available functions")
   .on("--help", () => {
     console.log(`
 -----------------------------------------------
@@ -43,7 +43,7 @@ async function menu() {
             console.log(` ${"8#".gray} ${"[dw]".brightCyan} ${functionsArray[7].substring(3).green}`);
             console.log(` ${"9#".gray} ${"[du]".brightCyan} ${functionsArray[8].substring(3).green}`);
             console.log("");
-            console.log(` ${"0#".gray} ${"[ex]".brightCyan} ${"EXIT".green}`);
+            console.log(` ${"0#".gray} ${"[ex]".brightCyan} ${"EXIT MENU (answer \"ex\" to any question to return to this menu)".green}`);
             console.log("");
 
             var answer = await utilsQuestion.makeQuestion(`Enter ${"number #".gray}, ${"[alias]".brightCyan} or ${"name".green} of the function to use: `);

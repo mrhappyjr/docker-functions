@@ -41,11 +41,11 @@ module.exports = async (p, o) => {
                 console.log(`Containers to prune (`.green + `database`.brightRed + `, `.green + 'running will stop'.brightCyan + '):'.green);
                 allContainersData = inspectFunc.getAllContainersData();
                 if (!pruneDB) {
-                    allContainersData = allContainersData.filter(container => container.DockerizeService != "gr-db");
+                    allContainersData = allContainersData.filter(container => !container.IsDB);
                 }
                 utilsArray.orderByColumn(allContainersData, "ContainerName");
                 allContainersData.forEach(container => {
-                    if (container.DockerizeService && container.DockerizeService.endsWith('gr-db')) {
+                    if (container.IsDB) {
                         console.log(`  ${container.ContainerName}`.brightRed);
                     } else if (container.Status && container.Status != "exited") {
                         console.log(`  ${container.ContainerName}`.brightCyan);
@@ -54,17 +54,18 @@ module.exports = async (p, o) => {
                     }
                 });
             }
+            var allImagesData;
             if (answerPrune && (answerPrune.toLowerCase().includes("i") || 
                                 answerPrune.toLowerCase().includes("a"))) {
                 console.log()
                 console.log("Images to prune (".green + "database".brightRed + "):".green)
-                var allImagesData = inspectFunc.getAllImagesData();
+                allImagesData = inspectFunc.getAllImagesData();
                 if (!pruneDB) {
-                    allImagesData = allImagesData.filter(image => image.DockerizeService != "gr-db");
+                    allImagesData = allImagesData.filter(image => !image.IsDB);
                 }
                 utilsArray.orderByColumn(allImagesData, "ImageName", false, "ImageId");
                 allImagesData.forEach(image => {
-                    if (image.DockerizeService && image.DockerizeService.endsWith('gr-db')) {
+                    if (image.IsDB) {
                         console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`.brightRed);
                     } else {
                         console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`);
@@ -85,21 +86,41 @@ module.exports = async (p, o) => {
             }
 
             // stop container
-            stopFunc.stopContainers(allContainersData.map(container => container.ContainerName));
+            if (allContainersData) {
+                stopFunc.stopContainers(allContainersData.map(container => container.ContainerName));
+            }
 
             const filterDB = pruneDB ? "" : " --filter \"label!=com.docker.compose.service=gr-db\"";
 
             if (answerPrune && (answerPrune.toLowerCase().includes("c") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                console.log(execCommand(`docker container prune -f${filterDB}`));
+                execCommand(`docker container prune -f${filterDB}`);
             }
             if (answerPrune && (answerPrune.toLowerCase().includes("i") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                console.log(execCommand(`docker image prune -a -f${filterDB}`));
+                try {
+                    // sort by date to remove the daughter images first
+                    allImagesData.sort((a, b) => (a.Created > b.Created) ? -1 : ((b.Created > a.Created) ? 1 : 0));
+                    execCommand(`docker image rm ${allImagesData.map(image => image.ImageId).join(" ")}`);
+                } catch (exception) {
+                    console.log(exception.message)
+                }
+                // print remove images
+                var remainingImages = inspectFunc.getAllImagesData();
+                remainingImages = remainingImages.map(image => image.ImageId);
+                allImagesData = allImagesData.filter(image => !remainingImages.includes(image.ImageId));
+                console.log("Deleted Imagenes:");
+                allImagesData.forEach(image => {
+                    if (image.IsDB) {
+                        console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`.brightRed);
+                    } else {
+                        console.log(`  ${(image.ImageName == "" ? image.ImageId : image.ImageName)}`);
+                    }
+                });
             }
             if (answerPrune && (answerPrune.toLowerCase().includes("v") || 
                                 answerPrune.toLowerCase().includes("a"))) {
-                console.log(execCommand(`docker volume prune -f`));
+                execCommand(`docker volume prune -f`);
             }
         }
     } catch (exception) {
@@ -114,5 +135,5 @@ module.exports = async (p, o) => {
 function execCommand(command) {
     console.log("")
     console.log("command: ".green + command)
-    return execSync(command, {stdio: 'pipe'}).toString();
+    console.log(execSync(command, {stdio: 'pipe'}).toString());
 }

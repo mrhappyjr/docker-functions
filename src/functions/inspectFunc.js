@@ -36,6 +36,7 @@ module.exports = {
                 newElement.DockerizeService = element.Config.Labels['com.docker.compose.service'];
                 newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
                 newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
+                newElement.IsDB = newElement.DockerizeService && (newElement.DockerizeService == 'gr-db');
 
                 return newElement;
             });
@@ -84,6 +85,7 @@ module.exports = {
                 newElement.MySQLversion = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_VERSION=") : undefined;
                 newElement.MySQLpass = (element.Config && element.Config.Env) ? utilsArray.value(element.Config.Env, "MYSQL_ROOT_PASSWORD=") : undefined;
                 newElement.Size = element.Size;
+                newElement.IsDB = (newElement.DockerizeService && newElement.DockerizeService == 'gr-db') || newElement.ImageName.includes('goldenrace-db') || newElement.MySQLversion;
 
                 return newElement;
             });

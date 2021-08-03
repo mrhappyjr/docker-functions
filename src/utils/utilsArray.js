@@ -58,7 +58,7 @@ module.exports = {
   },
 
   value: function (array, key) {
-    var value = "";
+    var value = undefined;
     array.forEach(element => {
       if (element.startsWith(key)) {
         value = element.replace(key, "");

@@ -45,6 +45,7 @@ module.exports = {
             if (element.MySQLpass && element.MySQLpass != "") {
                 newElement.MySQLversion += "\n" + element.MySQLpass;
             }
+            newElement.IsDB = element.IsDB;
 
             return newElement;
         });
@@ -126,6 +127,7 @@ module.exports = {
                 newElement.MySQLversion += "\n" + element.MySQLpass;
             }
             newElement.Size = utilsNumber.size(element.Size);
+            newElement.IsDB = element.IsDB;
 
             return newElement;
         });
@@ -309,7 +311,7 @@ function readColumns(dataArray, ...columnsReturn) {
 function dbCellColor(cellValue, columnIndex, rowIndex, rowData, inputData) {
     const row = inputData[rowIndex] // get the whole row
     
-    if (row.DockerizeService && row.DockerizeService.endsWith('\ngr-db')) {
+    if (row.IsDB) {
         return this.style(cellValue, "green");
     } else {
         return this.style(cellValue);

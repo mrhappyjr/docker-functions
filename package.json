@@ -1,6 +1,6 @@
 {
   "name": "docker-functions",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Docker functions",
   "main": "src/commands/docker-functions.js",
   "scripts": {

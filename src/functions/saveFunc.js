@@ -17,9 +17,8 @@ module.exports = {
         savePath = savePath.endsWith('/') ? savePath : (savePath + '/');
         const fileExtension = '.zip';
         var fileName = image.ImageName.split('/')[image.ImageName.split('/').length - 1].replace(':', '_');
-        var fileNameToSave = await utilsQuestion.makeQuestion(
-            `Write the ${"absolute path and the name of the file".green} where you want to ${"save".green} a compressed copy of image ${image.ImageName.green}:\n  `, 
-            savePath + fileName + fileExtension);
+        console.log(`\x1b[44mWrite the ${"absolute path and the name of the file".green} where you want to ${"save".green} a compressed copy of image ${image.ImageName.green}: \x1b[0m`);
+        var fileNameToSave = await utilsQuestion.makeQuestion(`  `, savePath + fileName + fileExtension);
         var proceed = false;
         // check if there is an file with the same name
         do {

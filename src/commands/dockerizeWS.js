@@ -6,6 +6,11 @@ const utilsQuestion = require('../utils/utilsQuestion');
 const utilsString = require('../utils/utilsString');
 const utilsDockerize = require('../utils/utilsDockerize');
 const customErrors = require('../errors/customErrors');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+
+const dockerizeConfigFile = path.resolve(os.homedir(), "./.goldenrace/dockerize.workspaces.config.json");
 
 module.exports = async (p, o) => {
 
@@ -37,13 +42,10 @@ module.exports = async (p, o) => {
         var currentPath = utilsString.replaceAll(process.cwd(), '\\', '/') + '/';
 
         console.log()
-        var answer = await utilsQuestion.makeQuestion(
-            `You want to create a ${"dockerize workspace".green} from the ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green}?\n` +
-            `If so, indicate the ${"path".green} where you want to create the workspace\n` + 
-            `(if you do not specify the unit it will be created from the current path \"${currentPath}\"\n` +
-            `and if it does not exist it will be created). Otherwise write \"n\": `);
-
-        // TODO comprobar si la ruta introducida ya existe como workspace de dockerize (leer el fichero dockerize.worksapces.config.json)
+        console.log(`\x1b[44mYou want to create a ${"dockerize workspace".green} from the ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green}?\x1b[0m`);
+        console.log(`\x1b[44mIf so, indicate the ${"path".green} where you want to create the workspace\x1b[0m`);
+        console.log(`\x1b[44m(if you do not specify the unit it will be created from the current path \"${currentPath}\"\x1b[0m`);
+        var answer = await utilsQuestion.makeQuestion(`and if it does not exist it will be created). Otherwise write \"n\": `);
 
         if (answer.toLowerCase() != 'n' && answer.toLowerCase() != 'no') {
             var dockerizeWorkspacePath = utilsString.replaceAll(answer, '\\', '/');
@@ -51,20 +53,30 @@ module.exports = async (p, o) => {
                 // If the path is relative
                 dockerizeWorkspacePath = currentPath + dockerizeWorkspacePath;
             }
-            console.log()
-            var confirm = await utilsQuestion.makeQuestion(
-                `Create ${"dockerize workspace".green} ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green} in ${"path".green} ${dockerizeWorkspacePath.green} (y/n)? `, "", true);
-            if (confirm) {
-                try {
-                    console.log()
-                    process.stdout.write(
-                        `Creating ${"dockerize workspace".green} ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green} in ${"path".green} ${dockerizeWorkspacePath.green} ... `);
-                    execSync(`dockerize gen-wk -o ${dockerizeWorkspacePath} -d DockerizeWorkspace_${dockerizeVersion}`, {stdio: 'pipe'});
+            // check if the entered path already exists as dockerize workspace
+            if (existWS(dockerizeWorkspacePath)) {
+                console.log(`In ${"path".brightRed} ${dockerizeWorkspacePath.brightRed} a dockerize workspace already exists`);
+            } else {
+                console.log()
+                var confirm = await utilsQuestion.makeQuestion(
+                    `Create ${"dockerize workspace".green} ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green} in ${"path".green} ${dockerizeWorkspacePath.green} (y/n)? `, "", true);
+                if (confirm) {
+                    try {
+                        console.log()
+                        process.stdout.write(
+                            `Creating ${"dockerize workspace".green} ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green} in ${"path".green} ${dockerizeWorkspacePath.green} ... `);
+                        execSync(`dockerize gen-wk -o ${dockerizeWorkspacePath} -d DockerizeWorkspace_${dockerizeVersion}`, {stdio: 'pipe'});
 
-                    // TODO comprobar si se ha creado correctamente el workspace
-                } finally {
-                    console.log()
-                    console.log()
+                        // check if the workspace has been created correctly
+                        if (existWS(dockerizeWorkspacePath)) {
+                            console.log(`${"SUCESS".green}. ${"Dockerize workspace".green} ${"version @goldenrace/dockerize@".green}${dockerizeVersion.green} created correctly in ${"path".green} ${dockerizeWorkspacePath.green}.`);
+                        } else {
+                            console.log(`${"ERROR".brightRed}. ${"Dockerize workspace".brightRed} ${"version @goldenrace/dockerize@".brightRed}${dockerizeVersion.brightRed} not created in ${"path".brightRed} ${dockerizeWorkspacePath.brightRed}.`);
+                        }
+                    } finally {
+                        console.log()
+                        console.log()
+                    }
                 }
             }
         }
@@ -78,4 +90,19 @@ module.exports = async (p, o) => {
         }
     }
 
+}
+
+function readWS() {
+    try {
+        let configDataRaw = fs.readFileSync(dockerizeConfigFile);
+        let configData =  JSON.parse(configDataRaw);
+        result = configData["workspaces"];
+    } catch (exception) {
+        console.log(exception.brightred)
+    }
+    return result;
+}
+
+function existWS(wsPath) {
+    return readWS().some(ws => utilsString.replaceAll(ws.workspacePath, '\\', '/').toLowerCase() == utilsString.replaceAll(wsPath, '\\', '/').toLowerCase());
 }

@@ -1,10 +1,10 @@
 const fs = require('fs');
+const os = require('os');
 require('colors');
 const path = require('path');
 const utilsString = require('../utils/utilsString');
 
-const appRoot = utilsString.replaceAll(path.resolve(__dirname), '\\', '/');
-const configFile = appRoot + '/config.json';
+const configFile = path.resolve(os.homedir(), "./.goldenrace/docker-functions.config.json");
 
 module.exports = {
 
@@ -38,6 +38,10 @@ module.exports = {
 }
 
 function getConfigData() {
+    var dirname = path.dirname(configFile);
+    if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname);
+    }
     if (!fs.existsSync(configFile)) {
         fs.writeFileSync(configFile, '{}');
     }

@@ -1,7 +1,11 @@
 module.exports = {
   
   replaceAll: function (txt, search, replace) {
-    return txt.split(search).join(replace);
+    try {
+      return txt.split(search).join(replace);
+    } catch (exception) {
+      return "";
+    }
   },
 
   replaceEOL: function (txt, replace) {

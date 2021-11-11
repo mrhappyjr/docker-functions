@@ -28,7 +28,7 @@ async function menu() {
     var lastFunction = "";
     try {
         do {
-            if (isList(lastFunction)) {
+            if (!isList(lastFunction)) {
                 require("./list")(package, program.opts());
             }
             utilsLog.logHeader("MENU", true, true, 17);

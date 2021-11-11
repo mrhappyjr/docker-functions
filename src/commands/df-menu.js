@@ -28,7 +28,7 @@ async function menu() {
     var lastFunction = "";
     try {
         do {
-            if (lastFunction.toLocaleLowerCase() != "li") {
+            if (isList(answer)) {
                 require("./list")(package, program.opts());
             }
             utilsLog.logHeader("MENU", true, true, 17);
@@ -49,7 +49,7 @@ async function menu() {
             var answer = await utilsQuestion.makeQuestion(`Enter ${"number #".gray}, ${"[alias]".brightCyan} or ${"name".green} of the function to use: `);
             lastFunction = answer;
 
-            if (answer.toLowerCase() == "1" || answer.toLowerCase().startsWith("li")) {
+            if (isList(answer)) {
                 await require("./list")(package, program.opts());
             } else if (answer.toLowerCase() == "2" || answer.toLowerCase().startsWith("st")) {
                 await require("./stop")(package, program.opts());
@@ -82,4 +82,8 @@ async function menu() {
         }
     }
 
+}
+
+function isList(answer) {
+    return answer.toLowerCase() == "1" || answer.toLowerCase().startsWith("li");
 }

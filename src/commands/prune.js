@@ -10,6 +10,8 @@ const customErrors = require('../errors/customErrors');
 
 module.exports = async (p, o) => {
 
+    // TODO CUANDO SE QUIERA BORRAR ALGUN ELEMENTO Y NO EXISTA NINGUN ELEMENTO DE ESE TIPO QUE NO DE ERROR
+
     utilsLog.logHeader("DOCKER FUNCTION: PRUNE", true, true, 100);
 
     try {

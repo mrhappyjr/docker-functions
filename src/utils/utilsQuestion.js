@@ -25,6 +25,7 @@ const question = (txt, defaultAnswer) => {
 module.exports = {
 
   makeQuestion: async function (txt, defaultAnswer, yes_no) {
+    readline.moveCursor(process.stdout, 2, 0);
     iniReadLine();
     if (txt.includes(`\n`)) {
       txt = utilsString.replaceAll(txt, `\n`, endStyle + `\n` + iniStyle);
